@@ -152,12 +152,12 @@
 
 | Data       | Decisão                                                            | Justificativa                                                                                                                                 |
 |------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| 2025-08-22 | Identificadores são case-sensitive                                 | Para manter consistência com linguagens como C/Java, dando mais controle ao programador.                                                    |
-| 2025-08-22 | Strings usam apenas aspas duplas (")                                | Simplifica o parser e evita conflitos com caracteres especiais e apóstrofos.                                                                  |
-| 2025-08-22 | Comentários de linha usam // e de bloco /* */                       | Combina padrão C/Java e dá flexibilidade de documentação.                                                                                     |
-| 2025-08-22 | Espaços em branco e quebras de linha são ignorados                  | Aumenta a legibilidade e evita erros triviais de formatação.                                                                                  |
+| 2025-08-22 | Identificadores são case-sensitive                                 | Para manter consistência com linguagens como C/Java, dando mais controle ao programador.                                                      |
+| 2025-08-22 | Strings usam apenas aspas duplas (")                               | Simplifica o parser e evita conflitos com caracteres especiais e apóstrofos.                                                                  |
+| 2025-08-22 | Comentários de linha usam // e de bloco /* */                      | Combina padrão C/Java e dá flexibilidade de documentação.                                                                                     |
+| 2025-08-22 | Espaços em branco e quebras de linha são ignorados                 | Aumenta a legibilidade e evita erros triviais de formatação.                                                                                  |
 | 2025-08-22 | Números não podem iniciar identificadores                          | Evita ambiguidade entre identificadores e literais numéricos.                                                                                 |
-| 2025-08-22 | Arrays suportam [] para acesso e {} para inicialização             | Para flexibilidade, como em C/C++ (acesso) e inicialização estilo JavaScript/Python.                                                         |
+| 2025-08-22 | Arrays suportam [] para acesso e [] para inicialização             | Para flexibilidade, como em C/C++ (acesso) e inicialização estilo JavaScript/Python.                                                          |
 | 2025-08-22 | Palavras-chave são reservadas                                      | Para prevenir uso indevido e facilitar a análise léxica.                                                                                      |
 
 ### Próximos Passos
@@ -178,4 +178,5 @@
 
 *   Ter uma versão funcional do analisador léxico.
 *   Concluir a definição das estruturas de controle da linguagem.
+
 *   Começar a testar o analisador léxico com exemplos simples de código.
