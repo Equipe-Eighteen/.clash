@@ -157,13 +157,13 @@ print("Meu nome é ${nome} e tenho ${idade} anos.");
 
 ```clash
 for (int i = 0; i < numeros.length; i++) {
-if (numeros[i] == 3) {
-continue;
-}
-if (numeros[i] == 5) {
-break;
-}
-print(numeros[i]);
+  if (numeros[i] == 3) {
+    continue;
+  }
+  if (numeros[i] == 5) {
+    break;
+  }
+  print(numeros[i]);
 }
 ```
 
@@ -171,11 +171,11 @@ print(numeros[i]);
 
 ```clash
 if (idade >= 18 && aprovado) {
-print("Maior de idade e aprovado");
+  print("Maior de idade e aprovado");
 } else if (idade >= 18 && !aprovado) {
-print("Maior de idade mas não aprovado");
+  print("Maior de idade mas não aprovado");
 } else {
-print("Menor de idade");
+  print("Menor de idade");
 }
 ```
 
@@ -183,9 +183,9 @@ print("Menor de idade");
 
 ```clash
 struct Pessoa {
-string nome;
-int idade;
-float altura;
+  string nome;
+  int idade;
+  float altura;
 };
 Pessoa p1;
 p1.nome = "Lucas";
