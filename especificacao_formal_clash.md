@@ -12,7 +12,7 @@ O alfabeto básico $\Sigma$ da linguagem Clash é composto por:
 
 Formalmente:
 
-$\Sigma = \{a..z, A..Z, 0..9, \_, +, -, \*, /, \%, =, <, >, !, \&, \|, \[, \], \{, \}, \(, \), ;, ,, ., \", espaço, \t, \n\}$
+$\Sigma = {a..z, A..Z, 0..9, _, +, -, *, /, %, =, <, >, !, &, |, [, ], {, }, (, ), ;, ,, ., ", \text{espaço}, \text{\t}, \text{\n}}$
 
 
 
