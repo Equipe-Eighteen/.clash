@@ -10,12 +10,6 @@ O alfabeto básico $\Sigma$ da linguagem Clash é composto por:
 - Operadores e pontuação: `+ - * / % = < > ! & | [ ] { } ( ) ; , . "`
 - Espaço em branco, tabulação `\t` e quebra de linha `\n`
 
-Formalmente:
-
-$\Sigma = {a..z, A..Z, 0..9, _, +, -, *, /, %, =, <, >, !, &, |, [, ], {, }, (, ), ;, ,, ., ", \text{espaço}, \text{\t}, \text{\n}}$
-
-
-
 
 ## 2. Tokens
 
