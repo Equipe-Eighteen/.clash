@@ -1,190 +1,331 @@
-# Especificação Formal – Linguagem Clash
+# Especificação Formal da Linguagem Clash
 
-## 1. Alfabeto
+## 1. Introdução
 
-O alfabeto básico $\Sigma$ da linguagem Clash é composto por:
+Esta seção apresenta a especificação formal da linguagem de programação Clash, detalhando seus componentes léxicos, sintáticos e semânticos. O objetivo é fornecer uma descrição precisa e não ambígua da linguagem, utilizando notação matemática baseada em conjuntos para as definições formais. Esta versão incorpora a definição de `structs` e `métodos` vinculados a `structs`, expandindo as capacidades de modelagem de dados da linguagem.
 
-- Letras latinas: `a–z`, `A–Z`
-- Algarismos: `0–9`
-- Símbolo de sublinhado: `_`
-- Operadores e pontuação: `+ - * / % = < > ! & | [ ] { } ( ) ; , . "`
-- Espaço em branco, tabulação `\t` e quebra de linha `\n`
+## 2. Alfabeto (Σ)
 
+O alfabeto (Σ) da linguagem Clash é o conjunto finito de todos os símbolos básicos que podem ser utilizados para construir programas válidos. Ele é definido como a união dos seguintes subconjuntos:
 
-## 2. Tokens
+*   **Letras Latinas (L):** `L = { 'a', ..., 'z', 'A', ..., 'Z' }`
+*   **Algarismos (D):** `D = { '0', ..., '9' }`
+*   **Símbolo de Sublinhado (U):** `U = { '_' }`
+*   **Operadores e Pontuação (P):** `P = { '+', '-', '*', '/', '%', '=', '<', '>', '!', '&', '|', '[', ']', '{', '}', '(', ')', ';', ',', '.', '"' }`
+*   **Espaços em Branco (W):** `W = { ' ', '\t', '\n', '\r' }` (espaço, tabulação, quebra de linha, retorno de carro)
 
-### 2.1 Identificadores
+Formalmente, o alfabeto Σ é dado por:
 
-- Devem começar com letra ou `_`.
-- Podem conter letras, números e `_`.
-- São case-sensitive.
+`Σ = L ∪ D ∪ U ∪ P ∪ W`
 
-Definição formal:
+## 3. Tokens
 
-`ID = ( [a-zA-Z_] ) ( [a-zA-Z0-9_]^* )`
+Tokens são as menores unidades significativas da linguagem. A análise léxica transforma uma sequência de caracteres do alfabeto em uma sequência de tokens.
 
-Exemplos: `idade`, `nome`, `_temp1`
+### 3.1 Identificadores (ID)
 
-### 2.2 Literais Numéricos
+Identificadores são nomes dados a variáveis, funções, tipos, etc. Em Clash, um identificador deve começar com uma letra ou um sublinhado, seguido por zero ou mais letras, algarismos ou sublinhados. Identificadores são case-sensitive.
 
-**Inteiros:**
+Formalmente, o conjunto de identificadores (ID) é definido por:
 
-`INT = (0 | [1-9][0-9]^* )`
+`ID = { s ∈ Σ* | s = l c* ∧ l ∈ (L ∪ U) ∧ c ∈ (L ∪ D ∪ U) }`
 
-Ex: `0`, `25`, `1024`
+Onde `s` é uma string de caracteres, `l` é o primeiro caractere (letra ou sublinhado) e `c*` representa zero ou mais caracteres subsequentes (letras, algarismos ou sublinhados).
 
-**Decimais:**
+Exemplos: `idade`, `nome`, `_temp1`, `minhaVariavel`
 
-`FLOAT = [0-9]^+ "." [0-9]^+`
+### 3.2 Literais Numéricos
 
-Ex: `1.75`, `3.0`
+#### 3.2.1 Inteiros (INT)
 
-**Notação científica:**
+Literais inteiros são sequências de algarismos que representam números inteiros. Não podem ter zeros à esquerda, exceto o próprio zero.
 
-`SCI = (INT | FLOAT) (e|E) (+|−)? [0-9]^+`
+Formalmente, o conjunto de inteiros (INT) é definido por:
 
-Ex: `3.14e10`, `2E-3`
+`INT = { s ∈ D* | s = '0' ∨ (s = d d'* ∧ d ∈ D \ { '0' } ∧ d' ∈ D) }`
 
-### 2.3 Literais String
+Exemplos: `0`, `25`, `1024`, `98765`
 
-- Cadeias delimitadas por aspas `" "`.
-- Podem conter letras, números, espaços e caracteres especiais (exceto quebra de linha sem escape).
+#### 3.2.2 Decimais (FLOAT)
 
-Definição formal:
+Literais decimais representam números de ponto flutuante e contêm um ponto decimal.
 
-`STRING = " ( Σ \ { " } )^* "`
+Formalmente, o conjunto de decimais (FLOAT) é definido por:
 
-Ex: `"Lucas"`, `"Maior de idade"`
+`FLOAT = { s ∈ Σ* | s = d+ '.' d+ ∧ d ∈ D }`
 
-- Mais funcionalidades:
-  - Concatenação: `STRING_CONCAT=STRING “+” STRING`
-  - Interpolação (Strings podem conter expressões delimitadas por `${ }`.):
-    `STRING_INTERP=”(Σ∖{“})∗(“$”EXP””)∗”`
+Exemplos: `1.75`, `3.0`, `0.5`, `123.456`
 
-Exemplos:
+#### 3.2.3 Notação Científica (SCI)
 
-- `"Olá " + "Mundo"`
-- `"Nome: ${nome}, Idade: ${idade}"`
+Literais em notação científica representam números de ponto flutuante com um expoente.
 
-### 2.4 Literais Booleanos
+Formalmente, o conjunto de notações científicas (SCI) é definido por:
 
-`BOOL = "true" | "false"`
+`SCI = { s ∈ Σ* | s = (i | f) ('e' | 'E') ('+' | '-')? d+ ∧ i ∈ INT ∧ f ∈ FLOAT ∧ d ∈ D }`
 
-### 2.5 Palavras-chave
+Exemplos: `3.14e10`, `2E-3`, `1.0e+5`, `6.022E23`
 
-Reservadas da linguagem (não podem ser usadas como identificadores):
+### 3.3 Literais String (STRING)
 
-`int`, `float`, `bool`, `string`, `struct`,
-`if`, `else`, `else if`, `for`, `while`, `foreach`, `in`,
-`break`, `continue`, `print`, `true`, `false`
+Literais string são sequências de caracteres delimitadas por aspas duplas. Podem conter qualquer caractere do alfabeto, exceto aspas duplas não escapadas e quebras de linha não escapadas.
 
-### 2.6 Operadores
+Formalmente, o conjunto de strings (STRING) é definido por:
 
-- Aritméticos: `+ - * / %`
-- Relacionais: `== != > >= < <=`
-- Lógicos: `&& || !`
-- Atribuição: `=`
-- Concatenação de strings: `+` (quando ambos operandos forem strings)
+`STRING = { s ∈ Σ* | s = '"' c* '"' ∧ c ∈ (Σ \ { '"', '\n', '\r' }) }`
 
-### 2.7 Comentários
+Exemplos: `"Lucas"`, `"Maior de idade"`, `"Olá Mundo!"`
 
-- Linha única:
-  `"//"(Σ^* )`
-- Bloco:
-  `"/*" (Σ^*) "*/"`
+#### 3.3.1 Concatenação de Strings
 
-**Atualização em 2.6 Operadores**
+A concatenação de strings é uma operação binária que une duas strings. Em Clash, é representada pelo operador `+` quando ambos os operandos são do tipo `string`.
 
-Adicionar:
+Formalmente, a operação de concatenação é uma função `C: STRING × STRING → STRING` definida como:
 
-- Concatenação de strings: `+` (quando ambos operandos forem strings)
+`C(s1, s2) = s1s2` (onde `s1s2` denota a concatenação das sequências de caracteres `s1` e `s2`)
 
+#### 3.3.2 Interpolação de Strings
 
+A interpolação de strings permite a inclusão de expressões dentro de literais string, delimitadas por `${ }`. A expressão é avaliada e seu resultado é convertido para string e inserido no local.
 
+Formalmente, uma string interpolada pode ser vista como uma sequência de segmentos de string e expressões:
 
-## 3. Regras Léxicas Gerais
+`STRING_INTERP = { s ∈ Σ* | s = (c* ('${' EXP '}')?)* c* ∧ c ∈ (Σ \ { '"', '\n', '\r' }) }`
 
-- Espaços em branco e quebras de linha são ignorados, exceto dentro de strings.
-- Identificadores são case-sensitive (`idade ≠ Idade`).
-- Arrays usam `[]` e podem ser inicializados com `[ ]`.
-- Strings aceitam caracteres especiais e devem ser delimitadas por `" "` (aspas duplas).
-- Comentários não podem ser aninhados.
+Onde `EXP` representa uma expressão válida na linguagem.
 
+Exemplos: `"Olá, ${nome}!"`, `"Meu nome é ${nome} e tenho ${idade} anos."`
 
+### 3.4 Literais Booleanos (BOOL)
 
+Literais booleanos representam os valores verdade `true` e `false`.
 
-## 4. Considerações de Design
+Formalmente, o conjunto de booleanos (BOOL) é definido por:
 
-- Usabilidade: case-sensitive dá mais flexibilidade, mas exige atenção do programador.
-- Ambiguidade evitada: identificadores não podem começar com número → garante distinção clara entre números e variáveis.
-- Strings: escolha deliberada por aspas duplas apenas → clareza e simplicidade.
-- Espaços: ignorados fora de strings → maior legibilidade sem afetar análise léxica.
+`BOOL = { "true", "false" }`
 
+### 3.5 Palavras-chave (KEYWORD)
 
+Palavras-chave são identificadores reservados que possuem um significado predefinido na linguagem e não podem ser utilizados como identificadores definidos pelo usuário.
 
+Formalmente, o conjunto de palavras-chave (KEYWORD) é:
 
-## 5. Exemplos Concretos de Programas Válidos
+`KEYWORD = { "int", "float", "bool", "string", "struct", "if", "else", "else if", "for", "while", "foreach", "in", "break", "continue", "print", "true", "false", "void" }`
 
-Abaixo, alguns exemplos reais de programas válidos escritos na linguagem Clash:
+### 3.6 Operadores (OP)
 
-### Declaração de variáveis e arrays
+Operadores são símbolos que representam operações a serem realizadas sobre um ou mais operandos.
 
-```clash
-int idade = 25;
-float altura = 1.75;
-bool aprovado = true;
-string nome = "Lucas";
-int[] numeros = [1, 2, 3, 4, 5];
-string[] nomes = ["Ana", "João", "Maria"];
-```
+Formalmente, o conjunto de operadores (OP) é a união dos seguintes subconjuntos:
 
-### Concatenação e interpolação
+*   **Aritméticos (OP_ARITH):** `OP_ARITH = { '+', '-', '*', '/', '%' }`
+*   **Relacionais (OP_REL):** `OP_REL = { '==', '!=', '>', '>=', '<', '<=' }`
+*   **Lógicos (OP_LOGIC):** `OP_LOGIC = { '&&', '||', '!' }`
+*   **Atribuição (OP_ASSIGN):** `OP_ASSIGN = { '=' }`
+*   **Acesso a Membro (OP_MEMBER):** `OP_MEMBER = { '.' }`
 
-```clash
-string nome = "Lucas";
-int idade = 25;
-print("Olá, " + nome + "!");
-print("Meu nome é ${nome} e tenho ${idade} anos.");
-```
+`OP = OP_ARITH ∪ OP_REL ∪ OP_LOGIC ∪ OP_ASSIGN ∪ OP_MEMBER`
 
-### Estrutura de repetição for
+### 3.7 Comentários (COMMENT)
 
-```clash
-for (int i = 0; i < numeros.length; i++) {
-  if (numeros[i] == 3) {
-    continue;
-  }
-  if (numeros[i] == 5) {
-    break;
-  }
-  print(numeros[i]);
-}
-```
+Comentários são sequências de caracteres ignoradas pelo compilador, utilizadas para documentação do código. Clash suporta comentários de linha única e de bloco.
 
-### Estrutura condicional
+*   **Comentário de Linha Única (SINGLE_LINE_COMMENT):** Começa com `//` e vai até o final da linha.
+    `SINGLE_LINE_COMMENT = { s ∈ Σ* | s = '//' c* '\n' ∧ c ∈ Σ }`
 
-```clash
-if (idade >= 18 && aprovado) {
-  print("Maior de idade e aprovado");
-} else if (idade >= 18 && !aprovado) {
-  print("Maior de idade mas não aprovado");
-} else {
-  print("Menor de idade");
-}
-```
+*   **Comentário de Bloco (BLOCK_COMMENT):** Começa com `/*` e termina com `*/`. Não podem ser aninhados.
+    `BLOCK_COMMENT = { s ∈ Σ* | s = '/*' c* '*/' ∧ c ∈ (Σ \ { '*' '/' })* }`
 
-### Structs e acesso a campos
+## 4. Tipos de Dados
+
+Clash é uma linguagem tipada, com tipos primitivos e tipos definidos pelo usuário.
+
+### 4.1 Tipos Primitivos (TP)
+
+`TP = { "int", "float", "bool", "string", "void" }`
+
+### 4.2 Tipos Estruturados (Structs)
+
+Structs permitem agrupar dados de diferentes tipos sob um único nome, criando tipos de dados compostos. Uma `struct` é uma coleção de campos, onde cada campo tem um nome (identificador) e um tipo.
+
+Formalmente, uma `StructType` é um par `(S_name, Fields)`, onde:
+
+*   `S_name` é o nome da struct, um `ID`.
+*   `Fields` é um conjunto finito de pares `(Field_name, Field_type)`, onde `Field_name` é um `ID` e `Field_type` é um `Type` (primitivo ou outra struct).
+
+`StructType = { (S_name, Fields) | S_name ∈ ID ∧ Fields ⊆ (ID × Type) }`
+
+Onde `Type = TP ∪ { S_name | (S_name, _) ∈ StructType }` (recursivo).
+
+Exemplo de declaração de struct:
 
 ```clash
 struct Pessoa {
-  string nome;
-  int idade;
-  float altura;
-};
-Pessoa p1;
-p1.nome = "Lucas";
-p1.idade = 25;
-p1["altura"] = 1.75;
+    string nome;
+    int idade;
+}
 ```
 
+Representação formal para `Pessoa`:
 
+`Pessoa = ("Pessoa", { ("nome", "string"), ("idade", "int") })`
+
+### 4.3 Arrays (ARRAY_TYPE)
+
+Arrays são coleções ordenadas de elementos do mesmo tipo.
+
+Formalmente, um `ARRAY_TYPE` é um par `(Element_Type, Dimension)`, onde `Element_Type` é qualquer `Type` e `Dimension` é um inteiro não negativo (opcionalmente, pode ser indefinido para arrays dinâmicos).
+
+`ARRAY_TYPE = { (T, D) | T ∈ Type ∧ D ∈ (INT ∪ {undefined}) }`
+
+Exemplo: `int[] numeros`, `string[] nomes`
+
+## 5. Declarações
+
+### 5.1 Declaração de Variáveis
+
+Uma declaração de variável associa um identificador a um tipo e, opcionalmente, a um valor inicial.
+
+Formalmente, uma `VarDecl` é uma tupla `(Var_name, Var_type, Initial_Value?)`, onde:
+
+*   `Var_name` é o nome da variável, um `ID`.
+*   `Var_type` é o tipo da variável, um `Type`.
+*   `Initial_Value` é uma `Expression` opcional cujo tipo deve ser compatível com `Var_type`.
+
+`VarDecl = { (V_name, V_type, Init_Val) | V_name ∈ ID ∧ V_type ∈ Type ∧ Init_Val ∈ (Expression ∪ {null}) }`
+
+Exemplo: `int idade = 25;`
+
+### 5.2 Declaração de Métodos (Funções Vinculadas a Structs)
+
+Métodos são funções associadas a um tipo `struct`. Eles operam sobre instâncias dessa `struct` e podem acessar e modificar seus campos. O primeiro parâmetro de um método é implicitamente a instância da struct (`receiver`).
+
+Formalmente, um `MethodDecl` é uma tupla `(Receiver_Type, Method_name, Parameters, Return_Type, Body)`, onde:
+
+*   `Receiver_Type` é o tipo da struct à qual o método está vinculado, um `StructType`.
+*   `Method_name` é o nome do método, um `ID`.
+*   `Parameters` é uma lista ordenada de pares `(Param_name, Param_type)`, onde `Param_name` é um `ID` e `Param_type` é um `Type`.
+*   `Return_Type` é o tipo de retorno do método, um `Type` (incluindo `void`).
+*   `Body` é uma sequência de `Statement`s que compõem o corpo do método.
+
+`MethodDecl = { (R_type, M_name, Params, Ret_type, Body) | R_type ∈ StructType ∧ M_name ∈ ID ∧ Params ⊆ (ID × Type)* ∧ Ret_type ∈ Type ∧ Body ∈ Statement* }`
+
+Exemplo de declaração de método:
+
+```clash
+void (p Pessoa) Saudacao() {
+    print(p.nome, " tem ", p.idade, " anos");
+}
+```
+
+Representação formal para `Saudacao`:
+
+`Saudacao = (Pessoa, "Saudacao", [], "void", Body_Saudacao)`
+
+Onde `Body_Saudacao` é a representação formal do corpo do método `print(p.nome, " tem ", p.idade, " anos");`.
+
+Exemplo de método que altera o estado da struct:
+
+```clash
+void (p Pessoa) Aniversario() {
+    p.idade++;
+}
+```
+
+Representação formal para `Aniversario`:
+
+`Aniversario = (Pessoa, "Aniversario", [], "void", Body_Aniversario)`
+
+Onde `Body_Aniversario` é a representação formal do corpo do método `p.idade++;`.
+
+## 6. Expressões
+
+Expressões são combinações de literais, identificadores, operadores e chamadas de métodos que produzem um valor.
+
+### 6.1 Acesso a Membro de Struct
+
+O acesso a um campo de uma struct é realizado usando o operador `.`.
+
+Formalmente, uma `MemberAccess` é uma tupla `(Instance, Field_name)`, onde:
+
+*   `Instance` é uma `Expression` cujo tipo é uma `StructType`.
+*   `Field_name` é o nome do campo, um `ID`, que deve pertencer ao conjunto de `Fields` da `StructType` de `Instance`.
+
+`MemberAccess = { (Inst, F_name) | Inst ∈ Expression ∧ Type(Inst) ∈ StructType ∧ F_name ∈ Fields(Type(Inst)) }`
+
+Exemplo: `pessoa.nome`, `p.idade`
+
+### 6.2 Chamada de Método
+
+A chamada de um método em uma instância de struct é realizada usando a sintaxe `instance.MethodName(arguments)`.
+
+Formalmente, uma `MethodCall` é uma tupla `(Instance, Method_name, Arguments)`, onde:
+
+*   `Instance` é uma `Expression` cujo tipo é uma `StructType`.
+*   `Method_name` é o nome do método, um `ID`, que deve ser um método definido para a `StructType` de `Instance`.
+*   `Arguments` é uma lista ordenada de `Expression`s, cujos tipos devem ser compatíveis com os `Parameters` do `MethodDecl` correspondente.
+
+`MethodCall = { (Inst, M_name, Args) | Inst ∈ Expression ∧ Type(Inst) ∈ StructType ∧ (Type(Inst), M_name, Params, _, _) ∈ MethodDecl ∧ CompatibleTypes(Args, Params) }`
+
+Exemplo: `pessoa.Saudacao()`, `pessoa.Aniversario()`
+
+## 7. Semântica Operacional (Exemplo Simplificado)
+
+Para ilustrar a semântica, consideremos um fragmento de programa e como seu estado é alterado.
+
+**Estado (State):** Um mapeamento de identificadores para seus valores e tipos.
+
+`State = ID → (Value × Type)`
+
+**Valores de Struct (StructValue):** Uma instância de struct é um mapeamento de nomes de campos para seus valores.
+
+`StructValue = Field_name → Value`
+
+### Exemplo de Execução:
+
+Considere o seguinte fragmento de código:
+
+```clash
+struct Pessoa {
+    string nome;
+    int idade;
+}
+
+Pessoa pessoa = { nome: "Ana", idade: 25 };
+
+pessoa.Saudacao();
+
+pessoa.Aniversario();
+pessoa.Saudacao();
+```
+
+1.  **Declaração da Struct `Pessoa`:**
+    A definição da `struct Pessoa` é adicionada ao ambiente de tipos.
+
+2.  **`Pessoa pessoa = { nome: "Ana", idade: 25 };`**
+    *   Uma nova instância de `Pessoa` é criada. `v_pessoa = { "nome": "Ana", "idade": 25 }`.
+    *   O estado é atualizado: `State = { "pessoa": (v_pessoa, Pessoa) }`.
+
+3.  **`pessoa.Saudacao();`**
+    *   O método `Saudacao` da instância `pessoa` é invocado.
+    *   Dentro de `Saudacao`, `p` refere-se a `v_pessoa`.
+    *   `p.nome` avalia para `"Ana"`.
+    *   `p.idade` avalia para `25`.
+    *   A função `print` é chamada com os argumentos `"Ana"`, `" tem "`, `25`, `" anos"`.
+    *   Saída: `Ana tem 25 anos`
+
+4.  **`pessoa.Aniversario();`**
+    *   O método `Aniversario` da instância `pessoa` é invocado.
+    *   Dentro de `Aniversario`, `p` refere-se a `v_pessoa`.
+    *   `p.idade++` é avaliado:
+        *   `p.idade` (25) é incrementado para 26.
+        *   `v_pessoa` é atualizado para `{ "nome": "Ana", "idade": 26 }`.
+    *   O estado é atualizado: `State = { "pessoa": (v_pessoa, Pessoa) }`.
+
+5.  **`pessoa.Saudacao();`**
+    *   O método `Saudacao` da instância `pessoa` é invocado novamente.
+    *   Dentro de `Saudacao`, `p` refere-se a `v_pessoa` (agora com idade 26).
+    *   `p.nome` avalia para `"Ana"`.
+    *   `p.idade` avalia para `26`.
+    *   A função `print` é chamada com os argumentos `"Ana"`, `" tem "`, `26`, `" anos"`.
+    *   Saída: `Ana tem 26 anos`
