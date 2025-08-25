@@ -32,7 +32,7 @@ Formalmente, o conjunto de identificadores (ID) é definido por:
 
 Onde `s` é uma string de caracteres, `l` é o primeiro caractere (letra ou sublinhado) e `c*` representa zero ou mais caracteres subsequentes (letras, algarismos ou sublinhados).
 
-Exemplos: `idade`, `nome`, `_temp1`, `minhaVariavel`
+Exemplos: `idade`, `nome`, `_temp1`, `minhaVariavel`, `totalVendas`
 
 ### 3.2 Literais Numéricos
 
@@ -213,30 +213,30 @@ Formalmente, um `MethodDecl` é uma tupla `(Receiver_Type, Method_name, Paramete
 Exemplo de declaração de método:
 
 ```clash
-void (p Pessoa) Saudacao() {
+void (p Pessoa) saudacao() {
     print(p.nome, " tem ", p.idade, " anos");
 }
 ```
 
-Representação formal para `Saudacao`:
+Representação formal para `saudacao`:
 
-`Saudacao = (Pessoa, "Saudacao", [], "void", Body_Saudacao)`
+`saudacao = (Pessoa, "saudacao", [], "void", bodySaudacao)`
 
-Onde `Body_Saudacao` é a representação formal do corpo do método `print(p.nome, " tem ", p.idade, " anos");`.
+Onde `bodySaudacao` é a representação formal do corpo do método `print(p.nome, " tem ", p.idade, " anos");`.
 
 Exemplo de método que altera o estado da struct:
 
 ```clash
-void (p Pessoa) Aniversario() {
+void (p Pessoa) aniversario() {
     p.idade++;
 }
 ```
 
-Representação formal para `Aniversario`:
+Representação formal para `aniversario`:
 
-`Aniversario = (Pessoa, "Aniversario", [], "void", Body_Aniversario)`
+`aniversario = (Pessoa, "aniversario", [], "void", bodyAniversario)`
 
-Onde `Body_Aniversario` é a representação formal do corpo do método `p.idade++;`.
+Onde `bodyAniversario` é a representação formal do corpo do método `p.idade++;`.
 
 ## 6. Expressões
 
@@ -267,7 +267,7 @@ Formalmente, uma `MethodCall` é uma tupla `(Instance, Method_name, Arguments)`,
 
 `MethodCall = { (Inst, M_name, Args) | Inst ∈ Expression ∧ Type(Inst) ∈ StructType ∧ (Type(Inst), M_name, Params, _, _) ∈ MethodDecl ∧ CompatibleTypes(Args, Params) }`
 
-Exemplo: `pessoa.Saudacao()`, `pessoa.Aniversario()`
+Exemplo: `pessoa.saudacao()`, `pessoa.aniversario()`
 
 ## 7. Semântica Operacional (Exemplo Simplificado)
 
@@ -293,10 +293,10 @@ struct Pessoa {
 
 Pessoa pessoa = { nome: "Ana", idade: 25 };
 
-pessoa.Saudacao();
+pessoa.saudacao();
 
-pessoa.Aniversario();
-pessoa.Saudacao();
+pessoa.aniversario();
+pessoa.saudacao();
 ```
 
 1.  **Declaração da Struct `Pessoa`:**
@@ -306,7 +306,7 @@ pessoa.Saudacao();
     *   Uma nova instância de `Pessoa` é criada. `v_pessoa = { "nome": "Ana", "idade": 25 }`.
     *   O estado é atualizado: `State = { "pessoa": (v_pessoa, Pessoa) }`.
 
-3.  **`pessoa.Saudacao();`**
+3.  **`pessoa.saudacao();`**
     *   O método `Saudacao` da instância `pessoa` é invocado.
     *   Dentro de `Saudacao`, `p` refere-se a `v_pessoa`.
     *   `p.nome` avalia para `"Ana"`.
@@ -314,7 +314,7 @@ pessoa.Saudacao();
     *   A função `print` é chamada com os argumentos `"Ana"`, `" tem "`, `25`, `" anos"`.
     *   Saída: `Ana tem 25 anos`
 
-4.  **`pessoa.Aniversario();`**
+4.  **`pessoa.aniversario();`**
     *   O método `Aniversario` da instância `pessoa` é invocado.
     *   Dentro de `Aniversario`, `p` refere-se a `v_pessoa`.
     *   `p.idade++` é avaliado:
@@ -322,10 +322,31 @@ pessoa.Saudacao();
         *   `v_pessoa` é atualizado para `{ "nome": "Ana", "idade": 26 }`.
     *   O estado é atualizado: `State = { "pessoa": (v_pessoa, Pessoa) }`.
 
-5.  **`pessoa.Saudacao();`**
+5.  **`pessoa.saudacao();`**
     *   O método `Saudacao` da instância `pessoa` é invocado novamente.
     *   Dentro de `Saudacao`, `p` refere-se a `v_pessoa` (agora com idade 26).
     *   `p.nome` avalia para `"Ana"`.
     *   `p.idade` avalia para `26`.
     *   A função `print` é chamada com os argumentos `"Ana"`, `" tem "`, `26`, `" anos"`.
     *   Saída: `Ana tem 26 anos`
+
+## 8. Considerações Finais
+
+Esta especificação formal serve como base para a implementação e verificação da linguagem Clash. A utilização de notação de conjuntos visa garantir a precisão e a clareza das definições, minimizando ambiguidades. Futuras expansões da linguagem deverão seguir este rigor formal para manter a consistência e a robustez do design.
+
+
+
+### 3.1.1 Convenções de Nomenclatura
+
+A linguagem Clash adota convenções de nomenclatura específicas para melhorar a legibilidade e consistência do código:
+
+*   **camelCase:** Utilizado para a maioria dos identificadores, incluindo nomes de variáveis, parâmetros, campos de structs e nomes de métodos. O primeiro caractere é minúsculo, e as primeiras letras de palavras subsequentes são maiúsculas (ex: `minhaVariavel`, `calcularTotal`, `nomeCompleto`).
+
+*   **PascalCase:** Exclusivamente utilizado para nomes de `structs`. O primeiro caractere de cada palavra é maiúsculo (ex: `Pessoa`, `Produto`, `DadosDoCliente`).
+
+Formalmente, para um identificador `id ∈ ID`:
+
+*   `isCamelCase(id)` se `id` começa com uma letra minúscula e segue o padrão `[a-z][a-zA-Z0-9]*([A-Z][a-zA-Z0-9]*)*`.
+*   `isPascalCase(id)` se `id` começa com uma letra maiúscula e segue o padrão `[A-Z][a-zA-Z0-9]*([A-Z][a-zA-Z0-9]*)*`.
+
+As regras de validação de `ID` (Seção 3.1) permanecem as mesmas, e estas convenções são diretrizes de estilo que devem ser seguidas pelos programadores.
