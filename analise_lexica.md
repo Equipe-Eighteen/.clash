@@ -32,6 +32,7 @@ A seguir, são apresentadas as expressões regulares para cada um dos tokens da 
 | `INT_LIT` | `0\|[1-9][0-9]*` | Números inteiros. |
 | `FLOAT_LIT` | `[0-9]+\.[0-9]+([eE][+-]?[0-9]+)?` | Números de ponto flutuante, incluindo notação científica opcional. |
 | `STRING_LIT` | `\"([^\"\\]\|\\.)*\"` | Sequência de caracteres entre aspas duplas. |
+| `INTERP_START` | `\$\{` |	Início de uma expressão de interpolação dentro de uma string. |
 | **OPERADORES** | | |
 | `OP_SOMA` | `\+` | Adição. |
 | `OP_SUB` | `-` | Subtração. |
@@ -98,15 +99,14 @@ O analisador léxico deve ser robusto e capaz de lidar com caracteres ou sequên
 A seguir, alguns exemplos de mensagens de erro que podem ser geradas pelo analisador léxico da Clash:
 
 * **Caractere Inválido**:
-    * `Erro Léxico (Linha 5, Coluna 10): O caractere '@' não é válido nesta linguagem.`
-    * `Erro Léxico (Linha 12, Coluna 3): Símbolo inesperado '#'.`
+    * `Lexical Error (Line 5, Column 10): The character '@' is not valid in this language.`
+    * `Lexical Error (Line 12, Column 3): Unexpected symbol '#'.`
 
 * **String Malformada**:
-    * `Erro Léxico (Linha 8, Coluna 25): A string iniciada não foi finalizada. Faltando '"'.`
+    * `Lexical Error (Line 8, Column 25): Unterminated string. Missing '"'.`
 
 * **Número Malformado**:
-    * `Erro Léxico (Linha 20, Coluna 15): Número de ponto flutuante malformado: '3.14.15'.`
-
+    * `Lexical Error (Line 20, Column 15): Malformed floating-point number: '3.14.15'.`
 * **Comentário de Bloco Não Finalizado**:
 
-    * `Erro Léxico (Fim do arquivo): O comentário de bloco iniciado na linha 30 não foi finalizado com '*/'.`
+    * `Lexical Error (End of file): The block comment started on line 30 was not terminated with '*/'.`
