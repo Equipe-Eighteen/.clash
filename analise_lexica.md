@@ -1,4 +1,4 @@
-### 📊 Entrega da Semana: Análise Léxica da Linguagem Clash
+### Entrega da Semana: Análise Léxica da Linguagem Clash
 
 ---
 
@@ -108,4 +108,5 @@ A seguir, alguns exemplos de mensagens de erro que podem ser geradas pelo analis
     * `Erro Léxico (Linha 20, Coluna 15): Número de ponto flutuante malformado: '3.14.15'.`
 
 * **Comentário de Bloco Não Finalizado**:
+
     * `Erro Léxico (Fim do arquivo): O comentário de bloco iniciado na linha 30 não foi finalizado com '*/'.`
