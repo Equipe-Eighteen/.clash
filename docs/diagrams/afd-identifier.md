@@ -14,6 +14,6 @@ graph LR
         q0 -- "[^a-zA-Z_]" --> q_err;
     end
     style q0 fill:#lightblue,stroke:#333,stroke-width:2px
-    style q1 fill:#9f9,stroke:#333,stroke-width:2px
-    style q_err fill:#f99,stroke:#333,stroke-width:2px
+    style q1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_err fill:#f99,stroke:#333,stroke-width:2px,color:#000
 ```

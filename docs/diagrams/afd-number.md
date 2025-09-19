@@ -20,8 +20,8 @@ graph LR
         q3 -- "\\d" --> q3;
     end
     style q0 fill:#lightblue,stroke:#333,stroke-width:2px
-    style q1 fill:#9f9,stroke:#333,stroke-width:2px
+    style q1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000
     style q2 fill:#lightblue,stroke:#333,stroke-width:2px
-    style q3 fill:#9f9,stroke:#333,stroke-width:2px
-    style q_err fill:#f99,stroke:#333,stroke-width:2px
+    style q3 fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_err fill:#f99,stroke:#333,stroke-width:2px,color:#000
 ```

@@ -65,20 +65,20 @@ graph TD
     style q_amp fill:#lightblue,stroke:#333,stroke-width:2px
     style q_pipe fill:#lightblue,stroke:#333,stroke-width:2px
 
-    style q_eq fill:#9f9,stroke:#333,stroke-width:2px
-    style q_not fill:#9f9,stroke:#333,stroke-width:2px
-    style q_less fill:#9f9,stroke:#333,stroke-width:2px
-    style q_greater fill:#9f9,stroke:#333,stroke-width:2px
-    style q_mult fill:#9f9,stroke:#333,stroke-width:2px
-    style q_single_op fill:#9f9,stroke:#333,stroke-width:2px
+    style q_eq fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_not fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_less fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_greater fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_mult fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_single_op fill:#9f9,stroke:#333,stroke-width:2px,color:#000
     
-    style q_eqeq fill:#9f9,stroke:#333,stroke-width:2px
-    style q_noteq fill:#9f9,stroke:#333,stroke-width:2px
-    style q_lesseq fill:#9f9,stroke:#333,stroke-width:2px
-    style q_greatereq fill:#9f9,stroke:#333,stroke-width:2px
-    style q_power fill:#9f9,stroke:#333,stroke-width:2px
-    style q_and fill:#9f9,stroke:#333,stroke-width:2px
-    style q_or fill:#9f9,stroke:#333,stroke-width:2px
+    style q_eqeq fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_noteq fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_lesseq fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_greatereq fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_power fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_and fill:#9f9,stroke:#333,stroke-width:2px,color:#000
+    style q_or fill:#9f9,stroke:#333,stroke-width:2px,color:#000
     
-    style q_err fill:#f99,stroke:#333,stroke-width:2px
+    style q_err fill:#f99,stroke:#333,stroke-width:2px,color:#000
 ```
