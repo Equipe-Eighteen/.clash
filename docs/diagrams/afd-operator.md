@@ -61,7 +61,6 @@ graph TD
         q0 -- "Outro caractere inválido" --> q_err;
     end
 
-    %% Estilos
     style q0 fill:#lightblue,stroke:#333,stroke-width:2px
     style q_amp fill:#lightblue,stroke:#333,stroke-width:2px
     style q_pipe fill:#lightblue,stroke:#333,stroke-width:2px
