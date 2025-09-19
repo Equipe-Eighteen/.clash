@@ -31,7 +31,7 @@ graph TD
         q_or["||"]
         
         q_single_op["Op. Simples"]
-        q_err["Erro"]
+        q_err["q_err"]
 
         %% Transições
         q0 -- "=" --> q_eq;
