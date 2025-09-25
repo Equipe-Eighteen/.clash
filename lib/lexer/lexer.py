@@ -1,4 +1,3 @@
-from typing import List
 from lib.lexer.token import *
 from lib.lexer.tables.keywords_table import KEYWORDS_TABLE
 from lib.lexer.tables.operators_table import OPERATORS_TABLE
@@ -131,7 +130,7 @@ class Lexer:
         raise LexerError("Invalid operator", self._line, self._column, current)
 
     # Tokens
-    def tokenize(self) -> List[Token]:
+    def tokenize(self) -> list[Token]:
         tokens = []
         while self._current_char != "\0":
             self.skip_whitespace()
