@@ -61,10 +61,10 @@ class TokenType(Enum):
 
 class Token:
     def __init__(self, type_: TokenType, value: str, line: int, column: int):
-        self.type = type_
-        self.value = value
-        self.line = line
-        self.column = column
+        self.type: TokenType = type_
+        self.value: str = value
+        self.line: int = line
+        self.column: int = column
 
     def __repr__(self):
         return f"Token({self.type}, '{self.value}', line={self.line}, col={self.column})"

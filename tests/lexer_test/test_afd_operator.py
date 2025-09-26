@@ -1,6 +1,6 @@
 import pytest
 from lib.lexer.lexer import Lexer
-from lib.lexer.token import TokenType
+from lib.lexer.token import TokenType, Token
 
 @pytest.mark.parametrize("text, expected_type", [
     ("+", TokenType.PLUS),
@@ -27,8 +27,8 @@ from lib.lexer.token import TokenType
     (",", TokenType.COMMA),
     (".", TokenType.DOT),
 ])
-def test_afd_operator(text, expected_type):
-    lexer = Lexer(text)
-    token = lexer.afd_operator()
+def test_afd_operator(text: str, expected_type: TokenType) -> None:
+    lexer: Lexer = Lexer(text)
+    token: Token = lexer.afd_operator()
     assert token.type == expected_type
     assert token.value == text

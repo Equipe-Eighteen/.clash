@@ -1,6 +1,6 @@
 from lib.lexer.token import TokenType
 
-KEYWORDS_TABLE = {
+KEYWORDS_TABLE: dict[str, TokenType] = {
     "if": TokenType.IF,
     "else": TokenType.ELSE,
     "elif": TokenType.ELIF,

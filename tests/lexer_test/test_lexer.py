@@ -1,6 +1,6 @@
 import pytest
 from lib.lexer.lexer import Lexer
-from lib.lexer.token import TokenType
+from lib.lexer.token import TokenType, Token
 
 @pytest.mark.parametrize("code, expected_types", [
     ('print("Hello World");', [
@@ -32,8 +32,8 @@ from lib.lexer.token import TokenType
         TokenType.EOF,
     ])
 ])
-def test_lexer_tokenize(code, expected_types):
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
+def test_lexer_tokenize(code: str, expected_types: list[TokenType]) -> None:
+    lexer: Lexer = Lexer(code)
+    tokens: list[Token] = lexer.tokenize()
     token_types = [t.type for t in tokens]
     assert token_types == expected_types

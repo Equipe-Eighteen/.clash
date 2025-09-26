@@ -1,2 +1,2 @@
-string texto123 = "Ola Mundo!";
+string texto = "Ola Mundo!";
 print(texto);

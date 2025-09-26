@@ -1,9 +1,10 @@
 import argparse
 from pprint import pprint
 from lib.utils.args_validators import clash_file
+from lib.lexer.token import Token
 from lib.lexer.lexer import Lexer
 
-def main():
+def main() -> None:
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument(
         'filename',
@@ -15,8 +16,8 @@ def main():
     with open(args.filename, "r", encoding="utf-8") as f:
         code = f.read()
     
-    lexer = Lexer(code)
-    tokens = lexer.tokenize()
+    lexer: Lexer = Lexer(code)
+    tokens: list[Token] = lexer.tokenize()
     pprint(tokens)
 
 if __name__ == "__main__":

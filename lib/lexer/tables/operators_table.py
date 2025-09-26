@@ -1,6 +1,6 @@
 from lib.lexer.token import TokenType
 
-OPERATORS_TABLE = {
+OPERATORS_TABLE: dict[str, TokenType]= {
     "=": TokenType.EQUALS,
     "==": TokenType.EQUAL_EQUAL,
     "!": TokenType.NOT,
