@@ -11,6 +11,11 @@ def main() -> None:
         type=clash_file,
         help="Input file with .clash extension"
     )
+    args_parser.add_argument(
+        '-l', '--lexer',
+        action='store_true',
+        help="Run only the lexer and print the tokens to the console"
+    )
 
     args = args_parser.parse_args()
     with open(args.filename, "r", encoding="utf-8") as f:
@@ -18,7 +23,10 @@ def main() -> None:
     
     lexer: Lexer = Lexer(code)
     tokens: list[Token] = lexer.tokenize()
-    pprint(tokens)
+
+    if args.lexer:
+        pprint(tokens)
+        return
 
 if __name__ == "__main__":
     main()
