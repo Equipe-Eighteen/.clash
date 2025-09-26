@@ -4,7 +4,7 @@ from lib.lexer.tables.operators_table import OPERATORS_TABLE
 from lib.utils.error_handler import LexerError
 
 class Lexer:
-    def __init__(self, text: str):
+    def __init__(self, text: str) -> None:
         self._text: str = text
         self._pos: int = 0
         self._line: int = 1

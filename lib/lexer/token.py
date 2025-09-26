@@ -61,11 +61,11 @@ class TokenType(Enum):
     EOF = "EOF"
 
 class Token:
-    def __init__(self, type_: TokenType, value: str, line: int, column: int):
+    def __init__(self, type_: TokenType, value: str, line: int, column: int) -> None:
         self.type: TokenType = type_
         self.value: str = value
         self.line: int = line
         self.column: int = column
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Token(type={self.type}, token='{self.value}', line={self.line}, col={self.column})"
