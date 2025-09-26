@@ -7,8 +7,8 @@ class Lexer:
     def __init__(self, text: str):
         self._text: str = text
         self._pos: int = 0
-        self._line: int = 0
-        self._column: int = 0
+        self._line: int = 1
+        self._column: int = 1
 
     # Tools
     def peek(self, offset: int = 1) -> str:
@@ -42,7 +42,7 @@ class Lexer:
                 self.advance()
                 while not (self.current() == "*" and self.peek() == "/"):
                     if self.current() == "\0":
-                        return
+                        raise LexerError("Unterminated multi-line comment", self._line, self._column, "")
                     self.advance()
                 self.advance()
                 self.advance()
@@ -132,8 +132,12 @@ class Lexer:
     def tokenize(self) -> list[Token]:
         tokens: list[Token] = []
         while self.current() != "\0":
-            self.skip_whitespace()
-            self.skip_comments()
+            while True:
+                initial_pos: int = self._pos
+                self.skip_whitespace()
+                self.skip_comments()
+                if self._pos == initial_pos:
+                    break
 
             if self.current() == "\0":
                 break

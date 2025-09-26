@@ -46,6 +46,7 @@ class TokenType(Enum):
     MODULE = "%"
 
     # Pontuação
+    COLON = ":"
     SEMICOLON = ";"
     LPAREN = "("
     RPAREN = ")"
@@ -67,4 +68,4 @@ class Token:
         self.column: int = column
 
     def __repr__(self):
-        return f"Token({self.type}, '{self.value}', line={self.line}, col={self.column})"
+        return f"Token(type={self.type}, token='{self.value}', line={self.line}, col={self.column})"

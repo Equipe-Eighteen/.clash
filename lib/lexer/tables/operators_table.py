@@ -17,6 +17,7 @@ OPERATORS_TABLE: dict[str, TokenType]= {
     "**": TokenType.POWER,
     "/": TokenType.DIVIDE,
     "%": TokenType.MODULE,
+    ":": TokenType.COLON,
     ";": TokenType.SEMICOLON,
     "(": TokenType.LPAREN,
     ")": TokenType.RPAREN,
