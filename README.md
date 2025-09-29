@@ -95,10 +95,6 @@ Para verificar a integridade do compilador e garantir que todas as funcionalidad
 ```sh
 pytest ./tests/
 ```
-ou
-```sh
-uv run pytest ./tests/
-```
 
 ## ▶️ Executando o Compilador
 
@@ -112,8 +108,4 @@ python main.py "caminho/para/seu/arquivo.clash"
 
 ```sh
 python main.py examples/codigo.clash
-```
-ou
-```sh
-uv run python main.py examples/codigo.clash
 ```

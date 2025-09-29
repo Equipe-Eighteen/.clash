@@ -1,4 +1,7 @@
 **/__pycache__/
-**/.*_cache
+**/.*_cache/
+build/
+dist/
 .venv
 .vscode
+*.spec
