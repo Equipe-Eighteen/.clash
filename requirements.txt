@@ -8,6 +8,8 @@ packaging==25.0
     # via pytest
 pluggy==1.6.0
     # via pytest
+pyfiglet==1.0.4
+    # via clash (pyproject.toml)
 pygments==2.19.2
     # via pytest
 pytest==8.4.2
