@@ -11,7 +11,3 @@ python main.py "caminho/para/seu/arquivo.clash" -l
 ```sh
 python main.py examples/codigo.clash -l
 ```
-ou se estiver usando `uv`
-```sh
-uv run python main.py examples/codigo.clash -l
-```
