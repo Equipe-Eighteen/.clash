@@ -66,6 +66,8 @@ class Lexer:
                 while self.current().isdigit():
                     result += self.current()
                     self.advance()
+                if self.current() == ".":
+                    raise LexerError("Malformed float", self._line, self._column, self.current())
             else:
                 raise LexerError("Malformed float", self._line, self._column, self.current())
 
@@ -80,15 +82,10 @@ class Lexer:
         while self.current() != quote:
             if self.current() == "\0":
                 raise LexerError("Unterminated string", self._line, self._column, "")
-
             if self.current() == "\\":
                 self.advance()
-                if self.current() == "n":
-                    result += "\n"
-                elif self.current() == "t":
-                    result += "\t"
-                else:
-                    result += self.current()
+                escapes = {"n": "\n", "t": "\t", "r": "\r", "\\": "\\", '"': '"'}
+                result += escapes.get(self.current(), self.current())
             else:
                 result += self.current()
             self.advance()
