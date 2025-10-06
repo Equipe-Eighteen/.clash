@@ -18,5 +18,5 @@ KEYWORDS_TABLE: dict[str, TokenType] = {
     "int": TokenType.INT_TYPE,
     "float": TokenType.FLOAT_TYPE,
     "string": TokenType.STRING_TYPE,
-    "bool": TokenType.BOOL_TYPE
+    "bool": TokenType.BOOL_TYPE,
 }

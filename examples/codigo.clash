@@ -7,7 +7,7 @@ bool aprovado = true;
 string nome = "Lucas";
 
 int[] numeros = [1, 2, 3, 4, 5];
-string[] nomes = ["Ana", "João", "Maria"];
+string[] nomes = ["Ana", "Joao", "Maria"];
 
 print(numeros[0]);   // saída: 1
 
@@ -17,7 +17,7 @@ int idade = 20;
 if (idade >= 18 && aprovado) {
     print("Maior de idade e aprovado");
 } else if (idade >= 18 && !aprovado) {
-    print("Maior de idade mas não aprovado");
+    print("Maior de idade mas nao aprovado");
 } else {
     print("Menor de idade");
 }
@@ -83,7 +83,7 @@ print(p1.nome + " tem " + p1["idade"] + " anos");
 // Array de Structs
 Pessoa[] pessoas = {
     {"Ana", 22, 1.65},
-    {"João", 30, 1.80}
+    {"Joao", 30, 1.80}
 };
 
 foreach (Pessoa p in pessoas) {
@@ -104,11 +104,11 @@ if (a > 0 && b > 0) {
 }
 
 if (a > 0 || b < 0) {
-    print("Pelo menos uma condição verdadeira");
+    print("Pelo menos uma condicao verdadeira");
 }
 
 if (!(a < 0)) {
-    print("a não é negativo");
+    print("a nao e negativo");
 }
 
 
@@ -123,7 +123,7 @@ void (Pessoa p) aniversario() {
     p.idade++;
 }
 
-void (Pessoa p) saudação() {
+void (Pessoa p) saudacao() {
     print(f"{p.nome} tem {p.idade} anos.");
 }
 

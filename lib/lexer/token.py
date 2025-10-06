@@ -1,64 +1,64 @@
-from enum import Enum
+from enum import Enum, auto
 
 class TokenType(Enum):
-    # Palavras-chave
-    IF = "IF"
-    ELSE = "ELSE"
-    ELIF = "ELIF"
-    TRUE = "TRUE"
-    FALSE = "FALSE"
-    STRUCT = "STRUCT"
-    WHILE = "WHILE"
-    FOR = "FOR"
-    FOREACH = "FOREACH"
-    RETURN = "RETURN"
-    BREAK = "BREAK"
-    CONTINUE = "CONTINUE"
-    IN = "IN"
-    VOID = "VOID"
-    INT_TYPE = "INT_TYPE"
-    FLOAT_TYPE = "FLOAT_TYPE"
-    STRING_TYPE = "STRING_TYPE"
-    BOOL_TYPE = "BOOL_TYPE"
+    # KEYWORDS
+    IF = auto()
+    ELSE = auto()
+    ELIF = auto()
+    TRUE = auto()
+    FALSE = auto()
+    STRUCT = auto()
+    WHILE = auto()
+    FOR = auto()
+    FOREACH = auto()
+    RETURN = auto()
+    BREAK = auto()
+    CONTINUE = auto()
+    IN = auto()
+    VOID = auto()
+    INT_TYPE = auto()
+    FLOAT_TYPE = auto()
+    STRING_TYPE = auto()
+    BOOL_TYPE = auto()
 
-    # Literais
-    INTEGER = "INTEGER"
-    FLOAT = "FLOAT"
-    STRING = "STRING"
-    IDENTIFIER = "IDENTIFIER"
+    # LITERALS
+    INTEGER = auto()
+    FLOAT = auto()
+    STRING = auto()
+    IDENTIFIER = auto()
 
-    # Operadores
-    EQUALS = "="
-    EQUAL_EQUAL = "=="
-    NOT = "!"
-    NOT_EQUAL = "!="
-    LESS = "<"
-    LESS_OR_EQUAL = "<="
-    GREATER = ">"
-    GREATER_OR_EQUAL = ">="
-    AND = "&&"
-    OR = "||"
-    PLUS = "+"
-    MINUS = "-"
-    MULTIPLY = "*"
-    POWER = "**"
-    DIVIDE = "/"
-    MODULE = "%"
+    # OPERATORS
+    EQUALS = auto()
+    EQUAL_EQUAL = auto()
+    NOT = auto()
+    NOT_EQUAL = auto()
+    LESS = auto()
+    LESS_OR_EQUAL = auto()
+    GREATER = auto()
+    GREATER_OR_EQUAL = auto()
+    AND = auto()
+    OR = auto()
+    PLUS = auto()
+    MINUS = auto()
+    MULTIPLY = auto()
+    POWER = auto()
+    DIVIDE = auto()
+    MODULE = auto()
 
-    # Pontuação
-    COLON = ":"
-    SEMICOLON = ";"
-    LPAREN = "("
-    RPAREN = ")"
-    LBRACE = "{"
-    RBRACE = "}"
-    LBRACKET = "["
-    RBRACKET = "]"
-    COMMA = ","
-    DOT = "."
+    # PUNCTUATION
+    COLON = auto()
+    SEMICOLON = auto()
+    LPAREN = auto()
+    RPAREN = auto()
+    LBRACE = auto()
+    RBRACE = auto()
+    LBRACKET = auto()
+    RBRACKET = auto()
+    COMMA = auto()
+    DOT = auto()
 
-    # Outros
-    EOF = "EOF"
+    # OTHERS
+    EOF = auto()
 
 class Token:
     def __init__(self, type_: TokenType, value: str, line: int, column: int) -> None:
