@@ -1,3 +1,4 @@
+import unicodedata
 from automata.fa.dfa import DFA
 from lib.lexer.token import Token, TokenType
 from lib.lexer.tables import KEYWORDS_TABLE, OPERATORS_TABLE, PUNCTUATION_TABLE
@@ -5,7 +6,8 @@ from lib.lexer.nfa_to_dfa import dfa
 
 class Lexer:
     def __init__(self, code: str):
-        self.code = code
+        self.normalized = unicodedata.normalize('NFKC', code)
+        self.code = ''.join(c if ord(c) < 128 else ' ' for c in self.normalized)
         self.dfa: DFA = dfa
         self.tokens: list[Token] = []
         self.i = 0
@@ -13,39 +15,7 @@ class Lexer:
         self.line = 1
         self.column = 1
 
-    def skip_whitespace_and_comments(self):
-        while self.i < self.n:
-            if self.code[self.i].isspace():
-                if self.code[self.i] == '\n':
-                    self.line += 1
-                    self.column = 1
-                else:
-                    self.column += 1
-                self.i += 1
-            elif self.code[self.i:self.i+2] == "//":
-                self.i += 2
-                while self.i < self.n and self.code[self.i] != '\n':
-                    self.i += 1
-                if self.i < self.n and self.code[self.i] == '\n':
-                    self.line += 1
-                    self.column = 1
-                    self.i += 1
-            elif self.code[self.i:self.i+2] == "/*":
-                self.i += 2
-                while self.i < self.n-1 and self.code[self.i:self.i+2] != "*/":
-                    if self.code[self.i] == '\n':
-                        self.line += 1
-                        self.column = 1
-                    else:
-                        self.column += 1
-                    self.i += 1
-                if self.i < self.n-1:
-                    self.i += 2
-            else:
-                break
-
     def get_next_token(self) -> Token:
-        self.skip_whitespace_and_comments()
         if self.i >= self.n:
             return Token(TokenType.EOF, '', self.line, self.column)
 
@@ -73,7 +43,7 @@ class Lexer:
 
         if last_final_state is None:
             raise ValueError(
-                f"Invalid Token at line {self.line} and column {self.column}: {self.code[self.i]}"
+                f"Invalid Token at line {self.line}, column {self.column}: '{self.code[self.i]}'"
             )
 
         token_text = self.code[self.i:last_final_index]
@@ -92,23 +62,46 @@ class Lexer:
         return token
 
     def classify_token(self, token_text: str) -> TokenType:
+        # --- Whitespace ---
+        if token_text.strip() == '':
+            return TokenType.WHITESPACE
+
+        # --- Comments ---
+        if token_text.startswith("//") or token_text.startswith("/*"):
+            return TokenType.COMMENT
+
+        # --- Keywords ---
         if token_text in KEYWORDS_TABLE:
             return KEYWORDS_TABLE[token_text]
-        elif token_text in OPERATORS_TABLE:
+
+        # --- Operators ---
+        if token_text in OPERATORS_TABLE:
             return OPERATORS_TABLE[token_text]
-        elif token_text in PUNCTUATION_TABLE:
+
+        # --- Punctuation ---
+        if token_text in PUNCTUATION_TABLE:
             return PUNCTUATION_TABLE[token_text]
-        elif token_text.startswith('"'):
+
+        # --- Strings ---
+        if token_text.startswith('"') and token_text.endswith('"'):
             return TokenType.STRING
-        elif token_text.replace('.', '', 1).isdigit():
+
+        # --- Numbers ---
+        if token_text.replace('.', '', 1).isdigit():
             return TokenType.FLOAT if '.' in token_text else TokenType.INTEGER
-        else:
-            return TokenType.IDENTIFIER
+
+        # --- Identifiers ---
+        return TokenType.IDENTIFIER
 
     def tokenize(self) -> list[Token]:
         while True:
             token = self.get_next_token()
-            self.tokens.append(token)
+
+            # Skip whitespaces and comments
+            if token.type not in {TokenType.WHITESPACE, TokenType.COMMENT}:
+                self.tokens.append(token)
+
             if token.type == TokenType.EOF:
                 break
+
         return self.tokens

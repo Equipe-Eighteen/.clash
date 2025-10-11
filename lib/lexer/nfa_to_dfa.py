@@ -3,11 +3,81 @@ from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
 from lib.lexer.tables import KEYWORDS_TABLE, OPERATORS_TABLE, PUNCTUATION_TABLE
 
+def nfa_whitespace_comments() -> NFA:
+    states = {"q0"}
+    transitions: dict[str, dict[str, set[str]]] = {}
+    final_states: set[str] = set()
+
+    # --- Whitespace ---
+    ws_chars = [' ', '\t', '\r', '\n']
+    states.add("ws")
+    for c in ws_chars:
+        transitions.setdefault("q0", {}).setdefault(c, set()).add("ws")
+        transitions.setdefault("ws", {}).setdefault(c, set()).add("ws")
+    final_states.add("ws")
+
+    # --- Line Comment: // ... ---
+    states.update(["slash1", "line_comment"])
+    transitions.setdefault("q0", {}).setdefault("/", set()).add("slash1")
+    transitions.setdefault("slash1", {}).setdefault("/", set()).add("line_comment")
+
+    for c in (set(map(chr, range(32, 127))) | {'\t', '\r'} - {'\n'}):
+        transitions.setdefault("line_comment", {}).setdefault(c, set()).add("line_comment")
+
+    # Quebra de linha encerra o comentário
+    transitions.setdefault("line_comment", {}).setdefault('\n', set()).add("ws")
+    final_states.add("line_comment")
+
+    # --- Block Comment: /* ... */ ---
+    states.update(["slash2", "block_body", "block_star", "block_end"])
+    transitions.setdefault("q0", {}).setdefault("/", set()).add("slash2")
+    transitions.setdefault("slash2", {}).setdefault("*", set()).add("block_body")
+
+    for c in (set(map(chr, range(32, 127))) | {'\n', '\t', '\r'} - {'*'}):
+        transitions.setdefault("block_body", {}).setdefault(c, set()).add("block_body")
+
+    transitions.setdefault("block_body", {}).setdefault("*", set()).add("block_star")
+
+    transitions.setdefault("block_star", {}).setdefault("*", set()).add("block_star")
+    transitions.setdefault("block_star", {}).setdefault("/", set()).add("block_end")
+    for c in (set(map(chr, range(32, 127))) | {'\n', '\t', '\r'} - {'*', '/'}):
+        transitions.setdefault("block_star", {}).setdefault(c, set()).add("block_body")
+
+    final_states.add("block_end")
+
+    input_symbols = set(map(chr, range(32, 127))) | {'\n', '\t', '\r'}
+
+    return NFA(
+        states=states,
+        input_symbols=input_symbols,
+        transitions=transitions,
+        initial_state="q0",
+        final_states=final_states
+    )
+
 def nfa_keywords() -> NFA:
-    letters = string.ascii_lowercase + "_"
-    regex = "|".join(KEYWORDS_TABLE.keys())
-    nfa = NFA.from_regex(regex, input_symbols=set(letters))
-    return nfa
+    states = {"q0"}
+    transitions: dict[str, dict[str, set[str]]] = {}
+    final_states: set[str] = set()
+
+    for _, kw in enumerate(sorted(KEYWORDS_TABLE.keys())):
+        current = "q0"
+        for j, char in enumerate(kw):
+            next_state = f"q_{kw}_{j+1}"
+            states.add(next_state)
+            transitions.setdefault(current, {}).setdefault(char, set()).add(next_state)
+            current = next_state
+        final_states.add(current)
+
+    input_symbols = set(char for kw in KEYWORDS_TABLE.keys() for char in kw)
+
+    return NFA(
+        states=states,
+        input_symbols=input_symbols,
+        transitions=transitions,
+        initial_state="q0",
+        final_states=final_states
+    )
 
 def nfa_operators() -> NFA:
     states = {"q0"}
@@ -108,10 +178,11 @@ def nfa_literals() -> NFA:
 
 def nfa_final() -> NFA:
     nfas = [
+        nfa_whitespace_comments(),
         nfa_keywords(),
         nfa_operators(),
         nfa_punctuation(),
-        nfa_literals()
+        nfa_literals(),
     ]
 
     states = {"q_init"}

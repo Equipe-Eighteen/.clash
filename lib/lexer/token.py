@@ -58,6 +58,8 @@ class TokenType(Enum):
     DOT = auto()
 
     # OTHERS
+    COMMENT = auto()
+    WHITESPACE = auto()
     EOF = auto()
 
 class Token:
