@@ -1,5 +1,6 @@
 import unicodedata
 from automata.fa.dfa import DFA
+from typing import Generator
 from lib.lexer.token import Token, TokenType
 from lib.lexer.tables import KEYWORDS_TABLE, OPERATORS_TABLE, PUNCTUATION_TABLE
 from lib.lexer.nfa_to_dfa import dfa
@@ -9,7 +10,6 @@ class Lexer:
         self.normalized = unicodedata.normalize('NFKC', code)
         self.code = ''.join(c if ord(c) < 128 else ' ' for c in self.normalized)
         self.dfa: DFA = dfa
-        self.tokens: list[Token] = []
         self.i = 0
         self.n = len(code)
         self.line = 1
@@ -93,15 +93,13 @@ class Lexer:
         # --- Identifiers ---
         return TokenType.IDENTIFIER
 
-    def tokenize(self) -> list[Token]:
+    def tokenize(self) -> Generator[Token, None, None]:
         while True:
             token = self.get_next_token()
 
             # Skip whitespaces and comments
             if token.type not in {TokenType.WHITESPACE, TokenType.COMMENT}:
-                self.tokens.append(token)
+                yield token
 
             if token.type == TokenType.EOF:
                 break
-
-        return self.tokens
