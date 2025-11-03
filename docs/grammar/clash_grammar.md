@@ -44,7 +44,7 @@ MethodDecl    = TypeSpecifier "(" ParamDecl ")" Declarator "(" [ ParamList ] ")"
 
 FuncDecl      = TypeSpecifier Declarator "(" [ ParamList ] ")" BlockStmt .
 
-VarDecl       = TypeSpecifier InitDeclarator { "," InitDeclarator } ";" .
+VarDecl       = TypeSpecifier InitDeclarator ({ "," InitDeclarator } | ";") .
 
 /* ============================================= */
 /* 2. Componentes de Declaração                  */
