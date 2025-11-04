@@ -124,7 +124,7 @@ Observações:
 
 Exemplo com nome do binário:
 ```sh
-pyinstaller --onefile --name clash --add-data="/dir/to/repo/clash/.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
+pyinstaller --onefile --name clash --add-data="./.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
 ```
 
 Após o build:

@@ -7,6 +7,7 @@ from lib.lexer.lexer import Lexer
 from lib.parser.parser import Parser
 from lib.semantic.semantic_analyzer import SemanticAnalyzer
 from lib.codegen.codegen import CodeGenerator
+from lib.utils.error_handler import LexerError, ParserError, CodegenError
 
 def main() -> None:
     if len(sys.argv) == 1:
@@ -48,39 +49,60 @@ def main() -> None:
     with open(args.filename, "r", encoding="utf-8") as f:
         code = f.read()
     
-    lexer: Lexer = Lexer(code)
-    tokens = list(lexer.tokenize())
+     # Lexer
+    try:
+        lexer: Lexer = Lexer(code)
+        tokens = list(lexer.tokenize())
+    except LexerError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
     if args.lexer:
         pprint(tokens)
         return
 
-    parser: Parser = Parser(tokens)
-    ast = parser.parse()
+    # Parser
+    try:
+        parser: Parser = Parser(tokens)
+        ast = parser.parse()
+    except ParserError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
     if args.parser:
         pprint(ast)
         return
     
+    # Semantic
     semantic_analyzer = SemanticAnalyzer()
     semantic_errors = semantic_analyzer.analyze(ast)
 
     if semantic_errors:
-        pprint(semantic_errors)
-        return
+        for err in semantic_errors:
+            print(err, file=sys.stderr)
+        sys.exit(1)
 
     if args.semantic and not semantic_errors:
         print("No semantic errors found.")
         return
 
+    # Codegen/Run
     gen = CodeGenerator()
     if args.codegen:
-        src = gen.generate(ast, args.run)
+        try:
+            src = gen.generate(ast, args.run)
+        except CodegenError as e:
+            print(e, file=sys.stderr)
+            sys.exit(1)
         pprint(src)
         return
 
     if args.run or not any((args.lexer, args.parser, args.semantic, args.codegen, args.run)):
-        gen.run(ast)
+        try:
+            gen.run(ast)
+        except CodegenError as e:
+            print(e, file=sys.stderr)
+            sys.exit(1)
         return
 
 if __name__ == "__main__":

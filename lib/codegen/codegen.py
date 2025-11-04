@@ -1,4 +1,5 @@
 from lib.parser.ast import program, declarations, statements, expressions, types
+from lib.utils.error_handler import CodegenError
 
 class CodeGenerator:
     def __init__(self) -> None:
@@ -54,7 +55,7 @@ class CodeGenerator:
         elif isinstance(node, statements.Statement):
             self._gen_stmt(node)
         else:
-            raise RuntimeError("Unknown top-level node")
+            raise CodegenError("Unknown top-level node")
 
     def _gen_var_decl(self, decl: declarations.VarDecl) -> None:
         target = self._gen_identifier(decl.name)
@@ -132,7 +133,7 @@ class CodeGenerator:
                 self._gen_block(st.else_branch)
                 self._indent -= 1
         else:
-            raise RuntimeError("Unknown statement")
+            raise CodegenError("Unknown statement")
 
     def _gen_assign_stmt(self, expr: expressions.AssignExpr) -> None:
         target = self._gen_lvalue(expr.target)
@@ -173,7 +174,7 @@ class CodeGenerator:
                 return f"(not {self._gen_expr(expr.right)})"
             if op == "-":
                 return f"(-{self._gen_expr(expr.right)})"
-            raise RuntimeError("Unknown unary operator")
+            raise CodegenError("Unknown unary operator")
         if isinstance(expr, expressions.BinaryOp):
             op = expr.op
             left = self._gen_expr(expr.left)
@@ -188,7 +189,7 @@ class CodeGenerator:
         if isinstance(expr, expressions.AssignExpr):
             # Treated as statement; fallback for safety
             return "None"
-        raise RuntimeError("Unknown expression")
+        raise CodegenError("Unknown expression")
 
     def _gen_lvalue(self, expr: expressions.Expression) -> str:
         if isinstance(expr, expressions.Identifier):
@@ -197,11 +198,11 @@ class CodeGenerator:
             obj = self._gen_expr(expr.obj)
             key = self._gen_identifier(expr.member)
             if key == "length":
-                raise RuntimeError("Cannot assign to 'length'")
+                raise CodegenError("Cannot assign to 'length'")
             return f"{obj}[{repr(key)}]"
         if isinstance(expr, expressions.ArrayAccess):
             return f"{self._gen_expr(expr.array)}[{self._gen_expr(expr.index)}]"
-        raise RuntimeError("Invalid assignment target")
+        raise CodegenError("Invalid assignment target")
 
     def _gen_identifier(self, ident: expressions.Identifier) -> str:
         return ident.name

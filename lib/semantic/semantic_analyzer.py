@@ -1,5 +1,6 @@
 from typing import List, Optional
 from lib.parser.ast import program, declarations, statements, expressions, types
+from lib.utils.error_handler import SemanticError
 from lib.semantic.symbols_table import (
     SymbolTable,
     VariableSymbol,
@@ -26,8 +27,8 @@ class SemanticAnalyzer:
         self.symbol_table.define(FunctionSymbol(name="print", params=[], return_type=void_t))
         self.symbol_table.define(FunctionSymbol(name="len", params=[], return_type=int_t))
 
-    def _report(self, message: str) -> None:
-        self.errors.append(message)
+    def _report(self, message: str, node: Optional[object] = None) -> None:
+        self.errors.append(str(SemanticError(message, node=node)))
 
     def _analyze_toplevel(self, node: object) -> None:
         if isinstance(node, declarations.StructDecl):
@@ -39,18 +40,18 @@ class SemanticAnalyzer:
         elif isinstance(node, statements.Statement):
             self._analyze_statement(node)
         else:
-            self._report("Unknown top-level node.")
+            self._report("Unknown top-level node.", node=node)
 
     def _analyze_struct_decl(self, decl: declarations.StructDecl) -> None:
         struct_name = decl.name.name
         if self.symbol_table.lookup_in_current(struct_name) is not None:
-            self._report(f"Redeclaration of symbol '{struct_name}'.")
+            self._report(f"Redeclaration of symbol '{struct_name}'.", node=decl.name)
             return
         field_map: dict[str, types.TypeSpecifier] = {}
         for field in decl.fields:
             fname = field.name.name
             if fname in field_map:
-                self._report(f"Duplicate field '{fname}' in struct '{struct_name}'.")
+                self._report(f"Duplicate field '{fname}' in struct '{struct_name}'.", node=field)
                 continue
             field_map[fname] = field.type_spec
         self.symbol_table.define(StructSymbol(name=struct_name, fields=field_map))
@@ -58,7 +59,7 @@ class SemanticAnalyzer:
     def _declare_func(self, func: declarations.FuncDecl) -> None:
         name = func.name.name
         if self.symbol_table.lookup_in_current(name) is not None:
-            self._report(f"Redeclaration of symbol '{name}'.")
+            self._report(f"Redeclaration of symbol '{name}'.", node=func.name)
             return
         self.symbol_table.define(FunctionSymbol(name=name, params=func.params, return_type=func.return_type))
         self._analyze_function_body(func)
@@ -68,7 +69,7 @@ class SemanticAnalyzer:
         for p in func.params:
             pname = p.name.name
             if self.symbol_table.lookup_in_current(pname) is not None:
-                self._report(f"Redeclaration of parameter '{pname}' in function '{func.name.name}'.")
+                self._report(f"Redeclaration of parameter '{pname}' in function '{func.name.name}'.", node=p.name)
                 continue
             self.symbol_table.define(VariableSymbol(name=pname, type_spec=p.type_spec))
         self._function_return_stack.append(func.return_type)
@@ -79,7 +80,7 @@ class SemanticAnalyzer:
     def _analyze_var_decl(self, decl: declarations.VarDecl) -> None:
         name = decl.name.name
         if self.symbol_table.lookup_in_current(name) is not None:
-            self._report(f"Redeclaration of symbol '{name}'.")
+            self._report(f"Redeclaration of symbol '{name}'.", node=decl.name)
         else:
             self.symbol_table.define(VariableSymbol(name=name, type_spec=decl.type_spec))
         if decl.initializer is not None:
@@ -93,7 +94,10 @@ class SemanticAnalyzer:
                     self._check_struct_literal_assignment(decl.type_spec, decl.initializer)
                 return
             if not self._is_assignable(decl.type_spec, init_t):
-                self._report(f"Type mismatch in variable initialization of '{name}' (expected {self._type_str(decl.type_spec)}, got {self._type_str(init_t)}).")
+                self._report(
+                    f"Type mismatch in variable initialization of '{name}' (expected {self._type_str(decl.type_spec)}, got {self._type_str(init_t)}).",
+                    node=decl
+                )
 
     def _analyze_block(self, block: statements.BlockStmt) -> None:
         self.symbol_table.begin_scope()
@@ -113,10 +117,10 @@ class SemanticAnalyzer:
             self._check_return_stmt(st)
         elif isinstance(st, statements.BreakStmt):
             if self._loop_depth <= 0:
-                self._report("Break used outside of loop.")
+                self._report("Break used outside of loop.", node=st)
         elif isinstance(st, statements.ContinueStmt):
             if self._loop_depth <= 0:
-                self._report("Continue used outside of loop.")
+                self._report("Continue used outside of loop.", node=st)
         elif isinstance(st, statements.LoopStmt):
             self._loop_depth += 1
             self._analyze_block(st.body)
@@ -124,42 +128,42 @@ class SemanticAnalyzer:
         elif isinstance(st, statements.IfStmt):
             self._analyze_if_stmt(st)
         else:
-            self._report("Unknown statement.")
+            self._report("Unknown statement.", node=st)
 
     def _analyze_if_stmt(self, node: statements.IfStmt) -> None:
         cond_t = self._type_of_expression(node.condition)
         if not self._is_bool(cond_t):
-            self._report("If condition must be 'bool'.")
+            self._report("If condition must be 'bool'.", node=node.condition)
         self._analyze_block(node.then_branch)
         for br in node.elif_branches:
             c = self._type_of_expression(br.condition)
             if not self._is_bool(c):
-                self._report("Elif condition must be 'bool'.")
+                self._report("Elif condition must be 'bool'.", node=br.condition)
             self._analyze_block(br.body)
         if node.else_branch is not None:
             self._analyze_block(node.else_branch)
 
     def _check_return_stmt(self, st: statements.ReturnStmt) -> None:
         if not self._function_return_stack:
-            self._report("Return used outside of function.")
+            self._report("Return used outside of function.", node=st)
             return
         expected = self._function_return_stack[-1]
         if st.value is None:
             if not self._is_void(expected):
-                self._report(f"Missing return value (expected {self._type_str(expected)}).")
+                self._report(f"Missing return value (expected {self._type_str(expected)}).", node=st)
             return
         got = self._type_of_expression(st.value)
         if got is None:
-            self._report("Could not infer return type.")
+            self._report("Could not infer return type.", node=st.value or st)
             return
         if not self._is_assignable(expected, got):
-            self._report(f"Return type mismatch (expected {self._type_str(expected)}, got {self._type_str(got)}).")
+            self._report(f"Return type mismatch (expected {self._type_str(expected)}, got {self._type_str(got)}).", node=st)
 
     def _type_of_expression(self, expr: expressions.Expression) -> Optional[types.TypeSpecifier]:
         if isinstance(expr, expressions.Identifier):
             sym = self.symbol_table.lookup(expr.name)
             if sym is None:
-                self._report(f"Undeclared identifier '{expr.name}'.")
+                self._report(f"Undeclared identifier '{expr.name}'.", node=expr)
                 return None
             if isinstance(sym, VariableSymbol):
                 return sym.type_spec
@@ -180,16 +184,16 @@ class SemanticAnalyzer:
 
         if isinstance(expr, expressions.LiteralList):
             if len(expr.elements) == 0:
-                self._report("Cannot infer element type of empty list literal.")
+                self._report("Cannot infer element type of empty list literal.", node=expr)
                 return types.ListType(element_type=types.BaseType(name="void"))
             first_t = self._type_of_expression(expr.elements[0])
             if first_t is None:
-                self._report("Cannot infer element type of list literal.")
+                self._report("Cannot infer element type of list literal.", node=expr)
                 return types.ListType(element_type=types.BaseType(name="void"))
             for el in expr.elements[1:]:
                 et = self._type_of_expression(el)
                 if et is None or not self._is_assignable(first_t, et):
-                    self._report("List literal elements must have a compatible type.")
+                    self._report("List literal elements must have a compatible type.", node=el)
                     break
             return types.ListType(element_type=first_t)
 
@@ -208,15 +212,21 @@ class SemanticAnalyzer:
                     self._check_struct_literal_assignment(target_t, expr.value)
                     return target_t
                 if target_t is not None and value_t is not None and not self._is_assignable(target_t, value_t):
-                    self._report(f"Type mismatch in assignment (expected {self._type_str(target_t)}, got {self._type_str(value_t)}).")
+                    self._report(
+                        f"Type mismatch in assignment (expected {self._type_str(target_t)}, got {self._type_str(value_t)}).",
+                        node=expr
+                    )
                 return target_t
             if target_t is None or value_t is None:
-                self._report("Could not infer types in compound assignment.")
+                self._report("Could not infer types in compound assignment.", node=expr)
                 return target_t
             bin_op = op[:-1]
             res_t = self._binary_result_type(bin_op, target_t, value_t)
             if res_t is None or not self._is_assignable(target_t, res_t):
-                self._report(f"Incompatible types for '{op}' (left {self._type_str(target_t)}, right {self._type_str(value_t)}).")
+                self._report(
+                    f"Incompatible types for '{op}' (left {self._type_str(target_t)}, right {self._type_str(value_t)}).",
+                    node=expr
+                )
             return target_t
 
         if isinstance(expr, expressions.BinaryOp):
@@ -224,11 +234,14 @@ class SemanticAnalyzer:
             right_t = self._type_of_expression(expr.right) if hasattr(expr, "right") else None
             op = getattr(expr, "op", "")
             if left_t is None or right_t is None:
-                self._report("Could not infer operand type for binary operation.")
+                self._report("Could not infer operand type for binary operation.", node=expr)
                 return None
             res_t = self._binary_result_type(op, left_t, right_t)
             if res_t is None:
-                self._report(f"Incompatible types for '{op}' (left {self._type_str(left_t)}, right {self._type_str(right_t)}).")
+                self._report(
+                    f"Incompatible types for '{op}' (left {self._type_str(left_t)}, right {self._type_str(right_t)}).",
+                    node=expr
+                )
             return res_t
 
         if isinstance(expr, expressions.UnaryOp):
@@ -236,14 +249,14 @@ class SemanticAnalyzer:
             right_t = self._type_of_expression(expr.right) if hasattr(expr, "right") else None
             if op == "!":
                 if not self._is_bool(right_t):
-                    self._report("Operator '!' expects operand of type 'bool'.")
+                    self._report("Operator '!' expects operand of type 'bool'.", node=expr)
                 return types.BaseType(name="bool")
             if op == "-":
                 if not self._is_number(right_t):
-                    self._report("Unary '-' expects numeric operand.")
+                    self._report("Unary '-' expects numeric operand.", node=expr)
                     return None
                 return right_t
-            self._report("Unknown unary operator.")
+            self._report("Unknown unary operator.", node=expr)
             return None
 
         if isinstance(expr, expressions.MemberAccess):
@@ -252,26 +265,26 @@ class SemanticAnalyzer:
             if isinstance(obj_t, types.ListType):
                 if mem == "length":
                     return types.BaseType(name="int")
-                self._report(f"List type has no member '{mem}'.")
+                self._report(f"List type has no member '{mem}'.", node=expr)
                 return None
             if isinstance(obj_t, types.BaseType):
                 sym = self.symbol_table.lookup(obj_t.name)
                 if isinstance(sym, StructSymbol):
                     if mem in sym.fields:
                         return sym.fields[mem]
-                    self._report(f"Struct '{obj_t.name}' has no field '{mem}'.")
+                    self._report(f"Struct '{obj_t.name}' has no field '{mem}'.", node=expr)
                     return None
-            self._report("Member access on non-struct type.")
+            self._report("Member access on non-struct type.", node=expr)
             return None
 
         if isinstance(expr, expressions.ArrayAccess):
             arr_t = self._type_of_expression(expr.array) if hasattr(expr, "array") else None
             idx_t = self._type_of_expression(expr.index) if hasattr(expr, "index") else None
             if not self._is_number(idx_t) and not self._is_int(idx_t):
-                self._report("Array index must be of type 'int'.")
+                self._report("Array index must be of type 'int'.", node=expr.index if hasattr(expr, "index") else expr)
             if isinstance(arr_t, types.ListType):
                 return arr_t.element_type
-            self._report("Subscript operator used on non-list type.")
+            self._report("Subscript operator used on non-list type.", node=expr)
             return None
 
         if isinstance(expr, expressions.FuncCall):
@@ -283,20 +296,20 @@ class SemanticAnalyzer:
                 return types.BaseType(name="void")
             if isinstance(expr.callee, expressions.Identifier) and expr.callee.name == "len":
                 if len(args) != 1:
-                    self._report(f"'len' expects 1 argument, got {len(args)}.")
+                    self._report(f"'len' expects 1 argument, got {len(args)}.", node=expr)
                     for a in args:
                         self._type_of_expression(a)
                     return types.BaseType(name="int")
                 at = self._type_of_expression(args[0])
                 if isinstance(at, types.ListType) or (isinstance(at, types.BaseType) and at.name == "str"):
                     return types.BaseType(name="int")
-                self._report("Argument to 'len' must be a list or 'str'.")
+                self._report("Argument to 'len' must be a list or 'str'.", node=args[0] if args else expr)
                 return types.BaseType(name="int")
             if isinstance(expr.callee, expressions.Identifier):
                 sym = self.symbol_table.lookup(expr.callee.name)
                 if isinstance(sym, FunctionSymbol):
                     if len(sym.params) != len(args):
-                        self._report(f"Function '{sym.name}' expects {len(sym.params)} arguments, got {len(args)}.")
+                        self._report(f"Function '{sym.name}' expects {len(sym.params)} arguments, got {len(args)}.", node=expr)
                     for p, a in zip(sym.params, args):
                         # If argument is a list literal and parameter is list-typed, validate elements against parameter element type
                         if isinstance(a, expressions.LiteralList) and isinstance(p.type_spec, types.ListType):
@@ -310,9 +323,9 @@ class SemanticAnalyzer:
                         if at is None:
                             continue
                         if not self._is_assignable(p.type_spec, at):
-                            self._report(f"Argument type mismatch for '{sym.name}' (expected {self._type_str(p.type_spec)}, got {self._type_str(at)}).")
+                            self._report(f"Argument type mismatch for '{sym.name}' (expected {self._type_str(p.type_spec)}, got {self._type_str(at)}).", node=a)
                     return sym.return_type
-                self._report("Call target is not a function.")
+                self._report("Call target is not a function.", node=expr.callee)
                 return None
             return callee_t
 
@@ -320,11 +333,11 @@ class SemanticAnalyzer:
 
     def _check_struct_literal_assignment(self, target_t: types.TypeSpecifier, lit: expressions.StructLiteral) -> None:
         if not isinstance(target_t, types.BaseType):
-            self._report("Struct literal assigned to non-struct type.")
+            self._report("Struct literal assigned to non-struct type.", node=lit)
             return
         sym = self.symbol_table.lookup(target_t.name)
         if not isinstance(sym, StructSymbol):
-            self._report("Struct literal assigned to non-struct type.")
+            self._report("Struct literal assigned to non-struct type.", node=lit)
             return
         provided: dict[str, expressions.Expression] = {}
         for field_init in getattr(lit, "fields", []):
@@ -332,11 +345,11 @@ class SemanticAnalyzer:
             provided[fname] = field_init.value
         for fname, ftype in sym.fields.items():
             if fname not in provided:
-                self._report(f"Missing field '{fname}' for struct '{sym.name}'.")
+                self._report(f"Missing field '{fname}' for struct '{sym.name}'.", node=lit)
                 continue
             vt = self._type_of_expression(provided[fname])
             if vt is None or not self._is_assignable(ftype, vt):
-                self._report(f"Incompatible type for field '{fname}' in struct '{sym.name}' (expected {self._type_str(ftype)}, got {self._type_str(vt)}).")
+                self._report(f"Incompatible type for field '{fname}' in struct '{sym.name}' (expected {self._type_str(ftype)}, got {self._type_str(vt)}).", node=provided[fname])
 
     def _check_list_literal_assignment(self, target_t: types.ListType, lit: expressions.LiteralList) -> None:
         elem_t = target_t.element_type
@@ -345,14 +358,14 @@ class SemanticAnalyzer:
                 if isinstance(elem_t, types.BaseType):
                     self._check_struct_literal_assignment(elem_t, el)
                 else:
-                    self._report("Struct literal assigned to non-struct element type in list.")
+                    self._report("Struct literal assigned to non-struct element type in list.", node=el)
             else:
                 at = self._type_of_expression(el)
                 if at is None:
-                    self._report("Could not infer element type in list literal.")
+                    self._report("Could not infer element type in list literal.", node=el)
                     continue
                 if not self._is_assignable(elem_t, at):
-                    self._report(f"Incompatible list element type (expected {self._type_str(elem_t)}, got {self._type_str(at)}).")
+                    self._report(f"Incompatible list element type (expected {self._type_str(elem_t)}, got {self._type_str(at)}).", node=el)
 
     def _binary_result_type(
         self,
