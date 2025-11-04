@@ -36,12 +36,17 @@ echo "$APP_NAME instalado com sucesso em $INSTALL_PATH"
 
 if ! grep -q "export PATH=\"$INSTALL_DIR:\$PATH\"" "$SHELL_PROFILE" 2>/dev/null; then
     echo "Adicionando $INSTALL_DIR ao seu PATH em $SHELL_PROFILE..."
-    
-    printf '\n# Adicionado pelo instalador do %s\nexport PATH="%s:$PATH"\n' "$APP_NAME" "$INSTALL_DIR" >> "$SHELL_PROFILE"
-    
-    printf '\nInstalação concluída!\n'
+
+    {
+        echo ""
+        echo "# Adicionado pelo instalador do $APP_NAME"
+        echo "export PATH=\"$INSTALL_DIR:\$PATH\""
+    } >> "$SHELL_PROFILE"
+
+    echo ""
+    echo "Instalação concluída!"
     echo "Por favor, reinicie seu terminal ou execute o seguinte comando:"
     echo "source $SHELL_PROFILE"
 else
-    printf '\nInstalação concluída! %s está pronto para usar.\n' "$APP_NAME"
+    echo "Instalação concluída! $APP_NAME está pronto para usar."
 fi
