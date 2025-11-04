@@ -75,14 +75,13 @@ def main() -> None:
 
     gen = CodeGenerator()
     if args.codegen:
-        src = gen.generate(ast)
+        src = gen.generate(ast, args.run)
         pprint(src)
         return
 
     if args.run or not any((args.lexer, args.parser, args.semantic, args.codegen, args.run)):
         gen.run(ast)
         return
-
 
 if __name__ == "__main__":
     main()
