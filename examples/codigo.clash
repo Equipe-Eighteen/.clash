@@ -1,6 +1,6 @@
-# Clash – Exemplos de Sintaxe
+// Clash - Exemplos de Sintaxe
 
-# Variáveis e Arrays
+// Variáveis e Arrays
 
 var idade: int = 25;
 var altura: float = 1.75;
@@ -10,9 +10,9 @@ var nome: str = "Lucas";
 var numeros: list[int] = [1, 2, 3, 4, 5];
 var nomes: list[str] = ["Ana", "Joao", "Maria"];
 
-print(numeros[0]);   # saída: 1
+print(numeros[0]);   // saída: 1
 
-# If / Else / Elif
+// If / Else / Elif
 var idade: int = 20;
 
 if (idade >= 18 && aprovado) {
@@ -23,7 +23,7 @@ if (idade >= 18 && aprovado) {
     print("Menor de idade");
 }
 
-# Loop
+// Loop
 var contador: int = 0;
 loop {
     if (contador < numeros.length) {
@@ -32,16 +32,16 @@ loop {
 
     if (contador == 2) {
         contador += 1;
-        continue;  # pula a iteração quando contador é 2
+        continue;  // pula a iteração quando contador é 2
     }
     if (contador == 4) {
-        break;     # sai do laço quando contador é 4
+        break;     // sai do laço quando contador é 4
     }
     print(numeros[contador]);
     contador += 1;
 }
 
-# Structs
+// Structs
 struct Pessoa {
     nome: str,
     idade: int,
@@ -55,16 +55,16 @@ p1.altura = 1.75;
 
 print(p1.nome + " tem " + p1.idade + " anos");
 
-# Array de Structs
+// Array de Structs
 var pessoas: list[Pessoa] = [
     new { nome: "Ana", idade: 22, altura: 1.65 },
     new { nome: "Joao", idade: 30, altura: 1.80 }
 ];
 
-# Operadores Lógicos
-# && -> AND lógico
-# || -> OR lógico
-# !  -> NOT lógico
+// Operadores Lógicos
+// && -> AND lógico
+// || -> OR lógico
+// !  -> NOT lógico
 
 var a: int = 10;
 var b: int = 5;
@@ -81,7 +81,7 @@ if (!(a < 0)) {
     print("a nao e negativo");
 }
 
-# Métodos
+// Métodos
 struct Pessoa {
     nome: str,
     idade: int,

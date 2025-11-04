@@ -67,7 +67,7 @@ class Lexer:
             return TokenType.WHITESPACE
 
         # --- Comments ---
-        if token_text.startswith("#"):
+        if token_text.startswith("//"):
             return TokenType.COMMENT
 
         # --- Keywords ---
