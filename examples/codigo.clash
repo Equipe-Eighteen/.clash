@@ -13,7 +13,8 @@ var nomes: list[str] = ["Ana", "Joao", "Maria"];
 print(numeros[0]);   // saída: 1
 
 // If / Else / Elif
-var idade: int = 20;
+// var idade: int = 20;
+idade = 20;
 
 if (idade >= 18 && aprovado) {
     print("Maior de idade e aprovado");
@@ -82,21 +83,21 @@ if (!(a < 0)) {
 }
 
 // Métodos
-struct Pessoa {
+struct Pessoa2 {
     nome: str,
     idade: int,
     altura: float,
 };
 
-func aniversario(p: Pessoa): void {
+func aniversario(p: Pessoa2): void {
     p.idade += 1;
 }
 
-func saudacao(p: Pessoa): void {
+func saudacao(p: Pessoa2): void {
     print(p.nome + " tem " + p.idade + " anos.");
 }
 
-var pessoa: Pessoa = new {
+var pessoa: Pessoa2 = new {
     nome: "Ana", 
     idade: 22, 
     altura: 1.65,

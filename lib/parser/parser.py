@@ -283,7 +283,15 @@ class Parser:
             op_lexeme = self.previous().value
             right = self.parse_unary()
             return expressions.UnaryOp(op=op_lexeme, right=right)
-        return self.parse_postfix()
+        return self.parse_power()
+
+    def parse_power(self) -> expressions.Expression:
+        expr_left = self.parse_postfix()
+        if self.match(TokenType.POWER):
+            op_lexeme = self.previous().value
+            right = self.parse_unary()
+            return expressions.BinaryOp(left=expr_left, op=op_lexeme, right=right)
+        return expr_left
 
     def parse_postfix(self) -> expressions.Expression:
         expr_node = self.parse_primary()
@@ -323,7 +331,8 @@ class Parser:
 
         if self.match(TokenType.PRINT):
             return expressions.Identifier(name="print")
-
+        if self.match(TokenType.LEN):
+            return expressions.Identifier(name="len")
         if self.match(TokenType.IDENTIFIER):
             return expressions.Identifier(name=self.previous().value)
 
