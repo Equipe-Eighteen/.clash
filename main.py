@@ -15,6 +15,12 @@ def main() -> None:
 
     args_parser = argparse.ArgumentParser()
     args_parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='Clash 1.0.0',
+        help="show program's version number and exit"
+    )
+    args_parser.add_argument(
         'filename',
         type=clash_file,
         help="input file with .clash extension"
