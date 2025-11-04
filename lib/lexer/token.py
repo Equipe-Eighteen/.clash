@@ -8,9 +8,8 @@ class TokenType(Enum):
     TRUE = auto()
     FALSE = auto()
     STRUCT = auto()
-    WHILE = auto()
-    FOR = auto()
-    FOREACH = auto()
+    NEW = auto()
+    LOOP = auto()
     RETURN = auto()
     BREAK = auto()
     CONTINUE = auto()
@@ -20,6 +19,9 @@ class TokenType(Enum):
     FLOAT_TYPE = auto()
     STRING_TYPE = auto()
     BOOL_TYPE = auto()
+    LIST_TYPE = auto()
+    VAR = auto()
+    FUNC = auto()
 
     # LITERALS
     INTEGER = auto()
@@ -39,11 +41,16 @@ class TokenType(Enum):
     AND = auto()
     OR = auto()
     PLUS = auto()
+    PLUS_EQUAL = auto()
     MINUS = auto()
+    MINUS_EQUAL = auto()
     MULTIPLY = auto()
+    MULTIPLY_EQUAL = auto()
     POWER = auto()
     DIVIDE = auto()
+    DIVIDE_EQUAL = auto()
     MODULE = auto()
+    MODULE_EQUAL = auto()
 
     # PUNCTUATION
     COLON = auto()

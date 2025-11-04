@@ -29,7 +29,6 @@ class IfStmt(Statement):
 
 @dataclass(slots=True)
 class LoopStmt(Statement):
-    condition: Expression
     body: BlockStmt
 
 @dataclass(slots=True)

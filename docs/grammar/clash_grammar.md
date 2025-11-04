@@ -5,14 +5,14 @@ G = (V, Σ, P, S)
 onde:
 
 * **V** (variáveis / não-terminais):
-    `{Program, Statement, ExpressionStmt, BlockStmt, IfStmt, LoopStmt, ReturnStmt, BreakStmt, ContinueStmt, Declaration, VarDecl, ParamDecl, FuncDecl, MethodDecl, StructDecl, Expression, AssignExpr, LogicalOrExpr, LogicalAndExpr, EqualityExpr, RelationalExpr, AdditiveExpr, MultiplicativeExpr, PowerExpr, UnaryExpr, PostfixExpr, PrimaryExpr, TypeSpecifier, BaseType, Declarator, InitDeclarator, ParamList, ArgList, Literal, LiteralList}`
+    `{Program, Statement, ExpressionStmt, BlockStmt, IfStmt, LoopStmt, ReturnStmt, BreakStmt, ContinueStmt, Declaration, VarDecl, ParamDecl, FuncDecl, StructDecl, Expression, AssignExpr, AssignOp, LogicalOrExpr, LogicalAndExpr, EqualityExpr, RelationalExpr, AdditiveExpr, MultiplicativeExpr, UnaryExpr, PostfixExpr, PrimaryExpr, TypeSpecifier, BaseType, ListType, ParamList, ArgList, Literal, LiteralList, StructLiteral, FieldList, FieldDecl, FieldInitList, FieldInit}`
 
 * **Σ** (terminais):
     Palavras reservadas, símbolos, identificadores e literais vindos do analisador léxico.
     * **Palavras Reservadas:**
-        `if`, `else`, `elif`, `true`, `false`, `struct`, `while`, `return`, `break`, `continue`, `void`, `int`, `float`, `string`, `bool`
+        `if`, `else`, `elif`, `true`, `false`, `struct`, `loop`, `return`, `break`, `continue`, `void`, `int`, `float`, `str`, `bool`, `var`, `func`, `list`, `new`
     * **Símbolos:**
-        `;`, `(`, `)`, `{`, `}`, `[`, `]`, `,`, `.`, `=`, `==`, `!`, `!=`, `<`, `<=`, `>`, `>=`, `&&`, `||`, `+`, `-`, `*`, `**`, `/`, `%`
+        `;`, `(`, `)`, `{`, `}`, `[`, `]`, `,`, `.`, `=`, `+=`, `==`, `!`, `!=`, `<`, `<=`, `>`, `>=`, `&&`, `||`, `+`, `-`, `*`, `/`, `%`, `:`
     * **Tokens de Literais/Identificadores:**
         `Identifier`, `IntLiteral`, `FloatLiteral`, `StringLiteral`
 
@@ -20,7 +20,7 @@ onde:
     `Program`
 
 * **P** (regras de produção):
-    O conjunto de produções segue abaixo, no formato EBNF.
+    O conjunto de produções segue abaixo, no formato EBNF e BNF.
 
 ---
 
@@ -35,34 +35,35 @@ Program       = { Declaration } .
 
 Declaration   = VarDecl
               | FuncDecl
-              | MethodDecl
               | StructDecl .
 
-StructDecl    = "struct" Identifier [ "{" { VarDecl } "}" ] ";" .
+StructDecl    = "struct" Identifier "{" [ FieldList ] "}" ";" .
 
-MethodDecl    = TypeSpecifier "(" ParamDecl ")" Declarator "(" [ ParamList ] ")" BlockStmt .
+FuncDecl      = "func" Identifier "(" [ ParamList ] ")" ":" TypeSpecifier BlockStmt .
 
-FuncDecl      = TypeSpecifier Declarator "(" [ ParamList ] ")" BlockStmt .
+VarDecl       = "var" Identifier ":" TypeSpecifier [ "=" Expression ] ";" .
 
-VarDecl       = TypeSpecifier InitDeclarator ({ "," InitDeclarator } | ";") .
+FieldList     = FieldDecl { "," FieldDecl } [ "," ] . /* Permite vírgula no final */
+
+FieldDecl     = Identifier ":" TypeSpecifier .
+
 
 /* ============================================= */
 /* 2. Componentes de Declaração                  */
 /* ============================================= */
 
-TypeSpecifier = BaseType { "[" "]" } .
+TypeSpecifier = BaseType | ListType .
 
-BaseType      = "void" | "int" | "float" | "string" | "bool" | Identifier .
+BaseType      = "void" | "int" | "float" | "bool" | "str" | Identifier .
 
-Declarator    = Identifier .
+ListType      = "list" "[" TypeSpecifier "]" .
 
-InitDeclarator = Identifier [ "=" Expression ] .
-
-ParamDecl     = TypeSpecifier Declarator .
+ParamDecl     = Identifier ":" TypeSpecifier .
 
 ParamList     = ParamDecl { "," ParamDecl } .
 
 ArgList       = Expression { "," Expression } .
+
 
 /* ============================================= */
 /* 3. Statements                                 */
@@ -75,7 +76,7 @@ Statement     = ExpressionStmt
               | ReturnStmt
               | BreakStmt
               | ContinueStmt
-              | VarDecl .  /* Permite declarações dentro de blocos */
+              | VarDecl .  /* Permite VarDecl dentro de blocos */
 
 BlockStmt     = "{" { Statement } "}" .
 
@@ -85,7 +86,7 @@ IfStmt        = "if" "(" Expression ")" BlockStmt
                 { "elif" "(" Expression ")" BlockStmt }
                 [ "else" BlockStmt ] .
 
-LoopStmt      = "while" "(" Expression ")" BlockStmt .
+LoopStmt      = "loop" BlockStmt .
 
 ReturnStmt    = "return" [ Expression ] ";" .
 
@@ -93,13 +94,16 @@ BreakStmt     = "break" ";" .
 
 ContinueStmt  = "continue" ";" .
 
+
 /* ============================================= */
 /* 4. Expressões (Hierarquia de Precedência)     */
 /* ============================================= */
 
 Expression    = AssignExpr .
 
-AssignExpr    = LogicalOrExpr [ "=" AssignExpr ] . /* Atribuição é R-Associativa */
+AssignExpr    = LogicalOrExpr [ AssignOp AssignExpr ] .
+
+AssignOp      = "=" | "+=" .
 
 LogicalOrExpr = LogicalAndExpr { "||" LogicalAndExpr } .
 
@@ -111,9 +115,7 @@ RelationalExpr = AdditiveExpr { ( "<" | "<=" | ">" | ">=" ) AdditiveExpr } .
 
 AdditiveExpr  = MultiplicativeExpr { ( "+" | "-" ) MultiplicativeExpr } .
 
-MultiplicativeExpr = PowerExpr { ( "*" | "/" | "%" ) PowerExpr } .
-
-PowerExpr     = UnaryExpr [ "**" PowerExpr ] . /* Potência é R-Associativa */
+MultiplicativeExpr = UnaryExpr { ( "*" | "/" | "%" ) UnaryExpr } .
 
 UnaryExpr     = ( "!" | "-" ) UnaryExpr 
               | PostfixExpr .
@@ -123,7 +125,9 @@ PostfixExpr   = PrimaryExpr { "." Identifier | "[" Expression "]" | "(" [ ArgLis
 PrimaryExpr   = Literal
               | Identifier
               | "(" Expression ")"
-              | LiteralList .
+              | LiteralList
+              | StructLiteral .
+
 
 /* ============================================= */
 /* 5. Átomos                                     */
@@ -131,14 +135,20 @@ PrimaryExpr   = Literal
 
 LiteralList   = "[" [ ArgList ] "]" .
 
+StructLiteral = "new" "{" [ FieldInitList ] "}" .
+
+FieldInitList = FieldInit { "," FieldInit } [ "," ] .
+
+FieldInit     = Identifier ":" Expression .
+
 Literal       = IntLiteral 
               | FloatLiteral 
-              | StringLiteral 
+              | StringLiteral
               | "true" 
               | "false" .
 ```
 
-## 📘 Gramática em BNF (Backus–Naur Form)
+## 📘 Gramática Clash em BNF (Backus–Naur Form)
 
 ```bnf
 /* ============================================= */
@@ -152,45 +162,41 @@ Literal       = IntLiteral
 
 <Declaration>    ::= <VarDecl>
                    | <FuncDecl>
-                   | <MethodDecl>
                    | <StructDecl>
 
-<StructDecl>     ::= "struct" Identifier <StructBodyOpt> ";"
+<StructDecl>     ::= "struct" Identifier "{" <FieldListOpt> "}" ";"
 
-<StructBodyOpt>  ::= "{" <VarDeclSeq> "}"
+<FieldListOpt>   ::= <FieldList>
                    | ε
 
-<VarDeclSeq>     ::= <VarDecl> <VarDeclSeq>
+<FieldList>      ::= <FieldDecl> <FieldListTail> <CommaOpt>
+
+<FieldListTail>  ::= "," <FieldDecl> <FieldListTail>
                    | ε
 
-<MethodDecl>     ::= <TypeSpecifier> "(" <ParamDecl> ")" <Declarator> "(" <ParamListOpt> ")" <BlockStmt>
+<FieldDecl>      ::= Identifier ":" <TypeSpecifier>
 
-<FuncDecl>       ::= <TypeSpecifier> <Declarator> "(" <ParamListOpt> ")" <BlockStmt>
+<FuncDecl>       ::= "func" Identifier "(" <ParamListOpt> ")" ":" <TypeSpecifier> <BlockStmt>
 
-<VarDecl>        ::= <TypeSpecifier> <InitDeclarator> <InitDeclaratorTail> ";"
+<VarDecl>        ::= "var" Identifier ":" <TypeSpecifier> <InitOpt> ";"
 
-<InitDeclaratorTail> ::= "," <InitDeclarator> <InitDeclaratorTail>
-                       | ε
+<InitOpt>        ::= "=" <Expression>
+                   | ε
+
+<CommaOpt>       ::= "," | ε
 
 /* ============================================= */
 /* 2. Componentes de Declaração                  */
 /* ============================================= */
 
-<TypeSpecifier>  ::= <BaseType> <ArraySpecTail>
+<TypeSpecifier>  ::= <BaseType>
+                   | <ListType>
 
-<ArraySpecTail>  ::= "[" "]" <ArraySpecTail>
-                   | ε
+<BaseType>       ::= "void" | "int" | "float" | "bool" | "str" | Identifier
 
-<BaseType>       ::= "void" | "int" | "float" | "string" | "bool" | Identifier
+<ListType>       ::= "list" "[" <TypeSpecifier> "]"
 
-<Declarator>     ::= Identifier
-
-<InitDeclarator> ::= Identifier <InitOpt>
-
-<InitOpt>        ::= "=" <Expression>
-                   | ε
-
-<ParamDecl>      ::= <TypeSpecifier> <Declarator>
+<ParamDecl>      ::= Identifier ":" <TypeSpecifier>
 
 <ParamListOpt>   ::= <ParamList>
                    | ε
@@ -239,7 +245,7 @@ Literal       = IntLiteral
 <ElseOpt>        ::= "else" <BlockStmt>
                    | ε
 
-<LoopStmt>       ::= "while" "(" <Expression> ")" <BlockStmt>
+<LoopStmt>       ::= "loop" <BlockStmt>
 
 <ReturnStmt>     ::= "return" <ExpressionOpt> ";"
 
@@ -254,8 +260,9 @@ Literal       = IntLiteral
 <Expression>     ::= <AssignExpr>
 
 <AssignExpr>     ::= <LogicalOrExpr> <AssignExprOpt>
-<AssignExprOpt>  ::= "=" <AssignExpr>
+<AssignExprOpt>  ::= <AssignOp> <AssignExpr>
                    | ε
+<AssignOp>       ::= "=" | "+="
 
 <LogicalOrExpr>  ::= <LogicalAndExpr> <LogicalOrExprTail>
 <LogicalOrExprTail> ::= "||" <LogicalAndExpr> <LogicalOrExprTail>
@@ -280,14 +287,10 @@ Literal       = IntLiteral
                      | ε
 <AddOp>          ::= "+" | "-"
 
-<MultiplicativeExpr> ::= <PowerExpr> <MultiplicativeExprTail>
-<MultiplicativeExprTail> ::= <MulOp> <PowerExpr> <MultiplicativeExprTail>
+<MultiplicativeExpr> ::= <UnaryExpr> <MultiplicativeExprTail>
+<MultiplicativeExprTail> ::= <MulOp> <UnaryExpr> <MultiplicativeExprTail>
                            | ε
 <MulOp>          ::= "*" | "/" | "%"
-
-<PowerExpr>      ::= <UnaryExpr> <PowerExprOpt>
-<PowerExprOpt>   ::= "**" <PowerPowerExpr>
-                   | ε
 
 <UnaryExpr>      ::= <UnaryOp> <UnaryExpr>
                    | <PostfixExpr>
@@ -304,6 +307,7 @@ Literal       = IntLiteral
                    | Identifier
                    | "(" <Expression> ")"
                    | <LiteralList>
+                   | <StructLiteral>
 
 /* ============================================= */
 /* 5. Átomos                                     */
@@ -311,9 +315,131 @@ Literal       = IntLiteral
 
 <LiteralList>    ::= "[" <ArgListOpt> "]"
 
+<StructLiteral>  ::= "new" "{" <FieldInitListOpt> "}"
+
+<FieldInitListOpt> ::= <FieldInitList>
+                     | ε
+
+<FieldInitList>  ::= <FieldInit> <FieldInitListTail> <CommaOpt>
+
+<FieldInitListTail> ::= "," <FieldInit> <FieldInitListTail>
+                      | ε
+
+<FieldInit>      ::= Identifier ":" <Expression>
+
 <Literal>        ::= IntLiteral 
                    | FloatLiteral 
                    | StringLiteral 
                    | "true" 
                    | "false" .
 ```
+
+---
+
+## 2. Conjuntos FIRST (Gramática V2)
+
+O conjunto FIRST de um não-terminal é o conjunto de terminais (tokens) que podem iniciar uma sentença derivada desse não-terminal.
+
+| Não-Terminal | Conjunto FIRST |
+| :--- | :--- |
+| `<Program>` | `{ var, func, struct, ε }` |
+| `<DeclarationSeq>` | `{ var, func, struct, ε }` |
+| `<Declaration>` | `{ var, func, struct }` |
+| `<VarDecl>` | `{ var }` |
+| `<FuncDecl>` | `{ func }` |
+| `<StructDecl>` | `{ struct }` |
+| `<TypeSpecifier>` | `{ void, int, float, bool, str, Identifier, list }` |
+| `<BaseType>` | `{ void, int, float, bool, str, Identifier }` |
+| `<ListType>` | `{ list }` |
+| `<Statement>` | `{ ;, {, if, loop, return, break, continue, var } ∪ FIRST(<Expression>)` |
+| | `{ ;, {, if, loop, return, break, continue, var, !, -, IntLiteral, FloatLiteral, StringLiteral, true, false, Identifier, (, [, new }` |
+| `<BlockStmt>` | `{ { }` |
+| `<ExpressionStmt>` | `{ ; } ∪ FIRST(<Expression>)` |
+| `<IfStmt>` | `{ if }` |
+| `<LoopStmt>` | `{ loop }` |
+| `<ReturnStmt>` | `{ return }` |
+| `<Expression>` | `{ !, -, IntLiteral, FloatLiteral, StringLiteral, true, false, Identifier, (, [, new }` |
+| `<AssignExpr>` | `{ !, -, IntLiteral, ..., new }` (O mesmo que `FIRST(<Expression>)`) |
+| `<LogicalOrExpr>` | `{ !, -, IntLiteral, ..., new }` (O mesmo que `FIRST(<Expression>)`) |
+| `<UnaryExpr>` | `{ !, - } ∪ FIRST(<PostfixExpr>)` |
+| `<PostfixExpr>` | `{ IntLiteral, FloatLiteral, StringLiteral, true, false, Identifier, (, [, new }` |
+| `<PrimaryExpr>` | `{ IntLiteral, FloatLiteral, StringLiteral, true, false, Identifier, (, [, new }` |
+| `<Literal>` | `{ IntLiteral, FloatLiteral, StringLiteral, true, false }` |
+| `<LiteralList>` | `{ [ }` |
+| `<StructLiteral>` | `{ new }` |
+
+---
+
+## 3. Conjuntos FOLLOW (Gramática V2)
+
+O conjunto FOLLOW de um não-terminal `A` é o conjunto de terminais que podem aparecer imediatamente após uma sentença derivada de `A`. `$` é o marcador de fim de arquivo.
+
+| Não-Terminal | Conjunto FOLLOW |
+| :--- | :--- |
+| `<Program>` | `{ $ }` |
+| `<DeclarationSeq>` | `{ $ }` |
+| `<Declaration>` | `{ var, func, struct, $ }` |
+| `<VarDecl>` | (Como `VarDecl` pode ser `Declaration` ou `Statement`, seu `FOLLOW` é a união de `FOLLOW(<Declaration>)` e `FOLLOW(<Statement>)`) |
+| `<Statement>` | `{ } } ∪ FIRST(<Statement>)` |
+| `<BlockStmt>` | (FOLLOW de `FuncDecl`, `IfStmt`, `ElifList`, `ElseOpt`, `LoopStmt`) <br> `{ var, func, struct, $, elif, else, } } ∪ FIRST(<Statement>)` |
+| `<Expression>` | `{ ;, ), ], , }` (Usado em `Expr;`, `if(Expr)`, `func(Expr)`, `list[Expr]`, `init: Expr,`) |
+| `<AssignExpr>` | `{ ;, ), ], , }` |
+| `<AssignOp>` | `FIRST(<AssignExpr>)` = `{ !, -, IntLiteral, ..., new }` |
+| `<LogicalOrExpr>` | `{ =, +=, ;, ), ], , }` |
+| `<LogicalAndExpr>` | `{ \|\|, =, +=, ;, ), ], , }` |
+| `<EqualityExpr>` | `{ &&, \|\|, =, +=, ;, ), ], , }` |
+| `<TypeSpecifier>` | `{ Identifier, {, ;, =, ), ] }` (Usado em `ParamDecl`, `FuncDecl`, `VarDecl`, `FieldDecl`, `ListType`) |
+| `<ParamListOpt>` | `{ ) }` |
+| `<ArgListOpt>` | `{ ), ] }` |
+| `<Literal>` | (FOLLOW de `PrimaryExpr`, que é muito grande) `{ ., [, ( } ∪ FOLLOW(<UnaryExpr>)` |
+| `<StructLiteral>` | (O mesmo que `FOLLOW(<Literal>)`) |
+
+---
+
+## 4. Análise: A Gramática V2 é LL(1)?
+
+> **Resposta: Sim, a gramática do CLash é LL(1).**
+
+Uma gramática é LL(1) se, para qualquer não-terminal, um analisador preditivo puder escolher a produção correta olhando apenas para o próximo (1) token de entrada.
+
+Isso exige que duas condições sejam verdadeiras:
+
+**1. Condição FIRST/FIRST:**
+Para qualquer não-terminal `A` com múltiplas produções `A -> α | β`, os conjuntos `FIRST(α)` e `FIRST(β)` devem ser disjuntos (`FIRST(α) ∩ FIRST(β) = ∅`).
+
+**Justificativa:** Sua nova gramática V2 satisfaz esta condição. Os conflitos da V1 foram resolvidos:
+
+* **Conflito 1 (Declaração):**
+    * `Declaration -> VarDecl | FuncDecl | StructDecl`
+    * `FIRST(VarDecl)` = `{ var }`
+    * `FIRST(FuncDecl)` = `{ func }`
+    * `FIRST(StructDecl)` = `{ struct }`
+    * **Resultado:** `{ var }`, `{ func }` e `{ struct }` são disjuntos. **CONFLITO RESOLVIDO.**
+
+* **Conflito 2 (Statement):**
+    * `Statement -> VarDecl | ExpressionStmt | BlockStmt | IfStmt | ...`
+    * `FIRST(VarDecl)` = `{ var }`
+    * `FIRST(ExpressionStmt)` = `{ !, -, IntLiteral, ..., Identifier, ... ; }`
+    * `FIRST(BlockStmt)` = `{ { }`
+    * `FIRST(IfStmt)` = `{ if }`
+    * **Resultado:** Todos os tokens de início (`var`, `!`, `-`, `Identifier`, `(`, `[`, `new`, `{`, `if`, `loop`, `return`, `break`, `continue`, `;`) são únicos para cada escolha de produção. **CONFLITO RESOLVIDO.**
+
+* **Conflito 3 (Bloco vs. Literal de Struct):**
+    * Na V2 (antes do `new`), `FIRST(BlockStmt)` e `FIRST(StructLiteral)` eram ambos `{ { }`.
+    * Na V2 final:
+    * `FIRST(BlockStmt)` = `{ { }`
+    * `FIRST(StructLiteral)` = `{ new }`
+    * **Resultado:** `{ { }` e `{ new }` são disjuntos. **CONFLITO RESOLVIDO.**
+
+**2. Condição FIRST/FOLLOW:**
+Se um não-terminal `A` tem uma produção que pode derivar a sentença vazia (ε), (ex: `A -> α | ε`), então `FIRST(α)` e `FOLLOW(A)` devem ser disjuntos (`FIRST(α) ∩ FOLLOW(A) = ∅`).
+
+**Justificativa:** Esta condição também é satisfeita. O exemplo mais claro está nas regras de Expressão (que usam `...Opt` e `...Tail` na BNF):
+
+* Considere `<AssignExprOpt> ::= <AssignOp> <AssignExpr> | ε`
+* `FIRST(<AssignOp> ...)` = `FIRST(AssignOp)` = `{ =, += }`
+* `FOLLOW(<AssignExprOpt>)` = `FOLLOW(<AssignExpr>)` = `FOLLOW(<Expression>)` = `{ ;, ), ], , }`
+* **Resultado:** `{ =, += } ∩ { ;, ), ], , } = ∅`. (Não há conflito).
+
+**Conclusão Final:**
+As mudanças de sintaxe (introduzindo `var`, `func`, `loop` e `new`) eliminaram todas as ambiguidades que impediam a gramática de ser LL(1). A gramática V2 resultante é LL(1) e pode ser implementada diretamente por um analisador preditivo recursivo descendente (*recursive descent parser*).

@@ -2,9 +2,7 @@ import sys
 import argparse
 import pyfiglet
 from pprint import pprint
-from typing import Generator
 from lib.utils.args_validators import clash_file
-from lib.lexer.token import Token
 from lib.lexer.lexer import Lexer
 
 def main() -> None:
@@ -28,10 +26,11 @@ def main() -> None:
         code = f.read()
     
     lexer: Lexer = Lexer(code)
-    tokens: Generator[Token, None, None] = lexer.tokenize()
 
-    for token in tokens:
-        if args.lexer: pprint(token)
+    for token in lexer.tokenize():
+        if args.lexer: 
+            pprint(token)
+            continue
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
 from lib.parser.ast.base import Node
 
@@ -30,14 +31,24 @@ class LiteralList(Expression):
     elements: list[Expression] = field(default_factory=list[Expression])
 
 @dataclass(slots=True)
+class FieldInit(Node):
+    name: Identifier
+    value: Expression
+
+@dataclass(slots=True)
+class StructLiteral(Expression):
+    fields: list[FieldInit] = field(default_factory=list[FieldInit])
+
+@dataclass(slots=True)
 class AssignExpr(Expression):
     target: Expression
+    op: str
     value: Expression
 
 @dataclass(slots=True)
 class BinaryOp(Expression):
-    op: str
     left: Expression
+    op: str
     right: Expression
 
 @dataclass(slots=True)
@@ -48,7 +59,7 @@ class UnaryOp(Expression):
 @dataclass(slots=True)
 class FuncCall(Expression):
     callee: Expression
-    arguments: list[Expression] = field(default_factory=list[Expression] )
+    arguments: list[Expression] = field(default_factory=list[Expression])
 
 @dataclass(slots=True)
 class MemberAccess(Expression):

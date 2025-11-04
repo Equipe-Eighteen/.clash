@@ -1,103 +1,73 @@
-// Clash – Exemplos de Sintaxe
+# Clash – Exemplos de Sintaxe
 
-// Variáveis e Arrays
-int idade = 25;
-float altura = 1.75;
-bool aprovado = true;
-string nome = "Lucas";
+# Variáveis e Arrays
 
-int[] numeros = [1, 2, 3, 4, 5];
-string[] nomes = ["Ana", "Joao", "Maria"];
+var idade: int = 25;
+var altura: float = 1.75;
+var aprovado: bool = true;
+var nome: str = "Lucas";
 
-print(numeros[0]);   // saída: 1
+var numeros: list[int] = [1, 2, 3, 4, 5];
+var nomes: list[str] = ["Ana", "Joao", "Maria"];
 
-// If / Else / Elif
-int idade = 20;
+print(numeros[0]);   # saída: 1
+
+# If / Else / Elif
+var idade: int = 20;
 
 if (idade >= 18 && aprovado) {
     print("Maior de idade e aprovado");
-} else if (idade >= 18 && !aprovado) {
+} elif (idade >= 18 && !aprovado) {
     print("Maior de idade mas nao aprovado");
 } else {
     print("Menor de idade");
 }
 
-
-// For
-for (int i = 0; i < numeros.length; i++) {
-    if (numeros[i] == 3) {
-        continue;   // pula a iteração quando o número é 3
+# Loop
+var contador: int = 0;
+loop {
+    if (contador < numeros.length) {
+        break;
     }
-    if (numeros[i] == 5) {
-        break;      // sai do laço quando o número é 5
-    }
-    print(numeros[i]);
-}
 
-
-// While
-int contador = 0;
-while (contador < numeros.length) {
     if (contador == 2) {
-        contador++;
-        continue;  // pula a iteração quando contador é 2
+        contador += 1;
+        continue;  # pula a iteração quando contador é 2
     }
     if (contador == 4) {
-        break;     // sai do laço quando contador é 4
+        break;     # sai do laço quando contador é 4
     }
     print(numeros[contador]);
-    contador++;
+    contador += 1;
 }
 
-
-// Foreach
-foreach (int n in numeros) {
-    if (n == 3) {
-        continue;  // pula o número 3
-    }
-    if (n == 5) {
-        break;     // sai do laço no número 5
-    }
-    print(n);
-}
-
-foreach (string nome in nomes) {
-    print(nome);
-}
-
-
-// Structs
+# Structs
 struct Pessoa {
-    string nome;
-    int idade;
-    float altura;
+    nome: str,
+    idade: int,
+    altura: float,
 };
 
-Pessoa p1;
+var p1: Pessoa;
 p1.nome = "Lucas";
 p1.idade = 25;
-p1["altura"] = 1.75;
+p1.altura = 1.75;
 
-print(p1.nome + " tem " + p1["idade"] + " anos");
+print(p1.nome + " tem " + p1.idade + " anos");
 
-// Array de Structs
-Pessoa[] pessoas = {
-    {"Ana", 22, 1.65},
-    {"Joao", 30, 1.80}
-};
+# Array de Structs
+var pessoas: list[Pessoa] = [
+    new { nome: "Ana", idade: 22, altura: 1.65 },
+    new { nome: "Joao", idade: 30, altura: 1.80 }
+];
 
-foreach (Pessoa p in pessoas) {
-    print(p.nome + " tem " + p.idade + " anos");
-}
+# Operadores Lógicos
+# && -> AND lógico
+# || -> OR lógico
+# !  -> NOT lógico
 
-
-// Operadores Lógicos
-// && -> AND lógico
-// || -> OR lógico
-// !  -> NOT lógico
-
-int a = 10;
-int b = 5;
+var a: int = 10;
+var b: int = 5;
 
 if (a > 0 && b > 0) {
     print("Ambos positivos");
@@ -112,27 +82,26 @@ if (!(a < 0)) {
 }
 
 
-// Métodos
+# Métodos
 struct Pessoa {
-    string nome;
-    int idade;
-    float altura;
+    nome: str,
+    idade: int,
+    altura: float,
 };
 
-void (Pessoa p) aniversario() {
-    p.idade++;
+func aniversario(p: Pessoa): void {
+    p.idade += 1;
 }
 
-void (Pessoa p) saudacao() {
-    print(f"{p.nome} tem {p.idade} anos.");
+func saudacao(p: Pessoa): void {
+    print(p.nome + " tem " + p.idade + " anos.");
 }
 
-Pessoa pessoa = {
+var pessoa: Pessoa = new {
     nome: "Ana", 
     idade: 22, 
-    altura: 1.65
+    altura: 1.65,
 };
 
-pessoa.saudacao();
-pessoa.aniversario();
-pessoa.saudacao();
+saudacao(pessoa);
+aniversario(pessoa);
