@@ -81,7 +81,6 @@ if (!(a < 0)) {
     print("a nao e negativo");
 }
 
-
 # Métodos
 struct Pessoa {
     nome: str,

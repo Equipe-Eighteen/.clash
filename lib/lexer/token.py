@@ -14,14 +14,15 @@ class TokenType(Enum):
     BREAK = auto()
     CONTINUE = auto()
     IN = auto()
-    VOID = auto()
+    VOID_TYPE = auto()
     INT_TYPE = auto()
     FLOAT_TYPE = auto()
-    STRING_TYPE = auto()
+    STR_TYPE = auto()
     BOOL_TYPE = auto()
     LIST_TYPE = auto()
     VAR = auto()
     FUNC = auto()
+    PRINT = auto()
 
     # LITERALS
     INTEGER = auto()
