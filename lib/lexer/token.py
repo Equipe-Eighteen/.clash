@@ -23,6 +23,7 @@ class TokenType(Enum):
     VAR = auto()
     FUNC = auto()
     PRINT = auto()
+    LEN = auto()
 
     # LITERALS
     INTEGER = auto()

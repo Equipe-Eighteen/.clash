@@ -109,3 +109,33 @@ python main.py "caminho/para/seu/arquivo.clash"
 ```sh
 python main.py examples/codigo.clash
 ```
+
+## 📦 Build (Binário)
+
+Gere um executável standalone com PyInstaller. Este projeto usa `pyfiglet`, então inclua os arquivos de fontes:
+
+```sh
+pyinstaller --onefile --add-data="/dir/to/repo/clash/.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
+```
+
+Observações:
+- O caminho de `pyfiglet/fonts` pode variar conforme seu Python/venv. Ajuste se necessário.
+- O executável será criado em `dist/main` (ou renomeie com `--name clash`).
+
+Exemplo com nome do binário:
+```sh
+pyinstaller --onefile --name clash --add-data="./.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
+```
+
+Após o build:
+```sh
+./dist/clash examples/codigo.clash
+```
+
+## 🛠 Instalação no Linux (via curl)
+
+Instale o Clash em uma máquina Linux usando um script `install.sh` hospedado no GitHub:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Equipe-Eighteen/.clash/refs/heads/main/install.sh | bash
+```

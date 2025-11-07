@@ -4,6 +4,7 @@ from typing import Generator
 from lib.lexer.token import Token, TokenType
 from lib.lexer.tables import KEYWORDS_TABLE, OPERATORS_TABLE, PUNCTUATION_TABLE
 from lib.lexer.nfa_to_dfa import dfa
+from lib.utils.error_handler import LexerError
 
 class Lexer:
     def __init__(self, code: str):
@@ -42,9 +43,7 @@ class Lexer:
             j += 1
 
         if last_final_state is None:
-            raise ValueError(
-                f"Invalid Token at line {self.line}, column {self.column}: '{self.code[self.i]}'"
-            )
+            raise LexerError("Invalid token", self.line, self.column, self.code[self.i])
 
         token_text = self.code[self.i:last_final_index]
         token_type = self.classify_token(token_text)

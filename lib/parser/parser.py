@@ -1,6 +1,7 @@
 from typing import List, Optional
 from lib.lexer.token import Token, TokenType
 from lib.parser.ast import program, declarations, statements, expressions, types
+from lib.utils.error_handler import ParserError
 
 class Parser:
     def __init__(self, tokens: List[Token]):
@@ -31,7 +32,12 @@ class Parser:
         if self.match(TokenType.STRUCT):
             return self.parse_struct_declaration()
 
-        raise SyntaxError(f"Unexpected token: {self.peek().value} (line {self.peek().line}). Expected 'var', 'func' or 'struct'.")
+        raise ParserError(
+            "Unexpected token. Expected 'var', 'func' or 'struct'.",
+            line=self.peek().line,
+            column=self.peek().column,
+            token=self.peek()
+        )
 
     # region --- Declarations ---
 
@@ -130,7 +136,12 @@ class Parser:
             base_type_name = self.previous().value
             return types.BaseType(name=base_type_name)
 
-        raise SyntaxError(f"Unexpected token: {self.peek().value} (line {self.peek().line}). Expected a type specifier (int, str, list, etc).")
+        raise ParserError(
+            "Expected a type specifier (int, str, list, etc).",
+            line=self.peek().line,
+            column=self.peek().column,
+            token=self.peek()
+        )
 
     # endregion
 
@@ -283,7 +294,15 @@ class Parser:
             op_lexeme = self.previous().value
             right = self.parse_unary()
             return expressions.UnaryOp(op=op_lexeme, right=right)
-        return self.parse_postfix()
+        return self.parse_power()
+
+    def parse_power(self) -> expressions.Expression:
+        expr_left = self.parse_postfix()
+        if self.match(TokenType.POWER):
+            op_lexeme = self.previous().value
+            right = self.parse_unary()
+            return expressions.BinaryOp(left=expr_left, op=op_lexeme, right=right)
+        return expr_left
 
     def parse_postfix(self) -> expressions.Expression:
         expr_node = self.parse_primary()
@@ -323,7 +342,8 @@ class Parser:
 
         if self.match(TokenType.PRINT):
             return expressions.Identifier(name="print")
-
+        if self.match(TokenType.LEN):
+            return expressions.Identifier(name="len")
         if self.match(TokenType.IDENTIFIER):
             return expressions.Identifier(name=self.previous().value)
 
@@ -366,7 +386,12 @@ class Parser:
             self.consume(TokenType.RBRACE, "Expected '}' at the end of the struct literal.")
             return expressions.StructLiteral(fields=fields_inits)
 
-        raise SyntaxError(f"Invalid primary expression: token '{self.peek().value}' (line {self.peek().line}).")
+        raise ParserError(
+            "Invalid primary expression.",
+            line=self.peek().line,
+            column=self.peek().column,
+            token=self.peek()
+        )
 
     def parse_field_init(self) -> expressions.FieldInit:
         name_tok = self.consume(TokenType.IDENTIFIER, "Expected a field name in the struct literal.")
@@ -381,7 +406,12 @@ class Parser:
     def consume(self, t_type: TokenType, message: str) -> Token:
         if self.check(t_type):
             return self.advance()
-        raise SyntaxError(f"{message} (line {self.peek().line}, received {self.peek().type.name})")
+        raise ParserError(
+            f"{message} (received {self.peek().type.name})",
+            line=self.peek().line,
+            column=self.peek().column,
+            token=self.peek()
+        )
 
     def match(self, *types: TokenType) -> bool:
         for t_type in types:

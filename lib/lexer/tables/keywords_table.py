@@ -22,4 +22,5 @@ KEYWORDS_TABLE: dict[str, TokenType] = {
     "var": TokenType.VAR,
     "func": TokenType.FUNC,
     "print": TokenType.PRINT,
+    "len": TokenType.LEN,
 }

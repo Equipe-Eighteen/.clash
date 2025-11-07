@@ -1,0 +1,33 @@
+func imprimirTexto(texto: str): void {
+    print(texto);
+}
+
+imprimirTexto("Hello, World!");
+
+func baskhara(a: int, b: int, c: int): list[float] {
+    var delta: int = b * b - 4 * a * c;
+    if (delta < 0) {
+        print("Raizes reais nao existem");
+    }
+
+    var x1: float = (-b + (delta ** 0.5)) / (2 * a);
+    var x2: float = (-b - (delta ** 0.5)) / (2 * a);
+
+    return [x1, x2];
+}
+
+var a: int = -1;
+var b: int = 5;
+var c: int = 6;
+var raizes: list[float] = baskhara(a, b, c);
+print("Raizes calculadas: " + raizes[0] + " e " + raizes[1]);
+
+var numeros: list[int] = [10, 20, 30, 40, 50];
+var contador: int = 0;
+loop {
+    print("Numero na posicao " + contador + ": " + numeros[contador]);
+    contador += 1;
+    if (contador >= len(numeros)) {
+        break;
+    }
+}
