@@ -1,0 +1,21 @@
+
+// 1) Redeclaração de variável no mesmo escopo
+var x: int = 10;
+var x: float = 1.5; // redeclaration
+
+// 2) Atribuição com tipo incompatível (string -> int)
+x = "eu sou string"; // type mismatch
+
+// 3) Condição de if com não-bool
+if (x) {
+    print("condicao nao eh bool");
+}
+
+// 4) Uso de break fora de loop
+break;
+
+// 5) Uso de return fora de função
+return 5;
+
+// 6) Uso incorreto do builtin `len` (simula numero de argumentos errado)
+len("a", "b");

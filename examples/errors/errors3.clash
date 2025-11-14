@@ -1,0 +1,29 @@
+// 1) Struct com campo duplicado
+struct Pessoa {
+    nome: str,
+    nome: str, // duplicate field
+    idade: int,
+};
+
+// 2) Acesso a membro em tipo não-struct
+var s: int = 5;
+print(s.nome);
+
+// 3) Atribuição de lista para variável não-list
+var a: int = [1, 2];
+
+// 4) Índice de array com tipo não-inteiro
+var arr: list[int] = [1, 2, 3];
+print(arr["1"]);
+
+// 5) Chamada de função com argumentos extras
+func g(): void {
+    print("ok");
+}
+
+g(1);
+
+// 6) Lista de structs com campo faltando / tipos incompatíveis
+var people: list[Pessoa] = [
+    new { nome: "Ana" } // faltando 'idade'
+];

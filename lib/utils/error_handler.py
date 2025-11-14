@@ -13,7 +13,7 @@ class ParserError(Exception):
 
 
 class SemanticError(Exception):
-    def __init__(self, message: str, node: Optional[Any] = None) -> None:
+    def __init__(self, message: str, line: int = 1, column: int = 1, node: Optional[Any] = None) -> None:
         node_val = None
         if node is not None:
             for attr in ("name", "value", "identifier", "symbol"):
@@ -21,7 +21,7 @@ class SemanticError(Exception):
                 if node_val is not None:
                     break
         node_repr = f" -> '{node_val}'" if node_val is not None else ""
-        super().__init__(f"Semantic error: {message}{node_repr}")
+        super().__init__(f"Semantic error at line {line}, column {column}: {message}{node_repr}")
 
 
 class CodegenError(Exception):

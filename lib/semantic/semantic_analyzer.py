@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 from lib.parser.ast import program, declarations, statements, expressions, types
 from lib.utils.error_handler import SemanticError
 from lib.semantic.symbols_table import (
@@ -11,12 +11,12 @@ from lib.semantic.symbols_table import (
 class SemanticAnalyzer:
     def __init__(self, symbol_table: Optional[SymbolTable] = None) -> None:
         self.symbol_table: SymbolTable = symbol_table if symbol_table is not None else SymbolTable()
-        self.errors: List[str] = []
-        self._function_return_stack: List[types.TypeSpecifier] = []
+        self.errors: list[str] = []
+        self._function_return_stack: list[types.TypeSpecifier] = []
         self._loop_depth: int = 0
         self._install_builtins()
 
-    def analyze(self, prog: program.Program) -> List[str]:
+    def analyze(self, prog: program.Program) -> list[str]:
         for node in prog.declarations:
             self._analyze_toplevel(node)
         return self.errors
@@ -28,7 +28,9 @@ class SemanticAnalyzer:
         self.symbol_table.define(FunctionSymbol(name="len", params=[], return_type=int_t))
 
     def _report(self, message: str, node: Optional[object] = None) -> None:
-        self.errors.append(str(SemanticError(message, node=node)))
+        line = getattr(node, "line", 1)
+        column = getattr(node, "col", 1)
+        self.errors.append(str(SemanticError(message, line=line, column=column, node=node)))
 
     def _analyze_toplevel(self, node: object) -> None:
         if isinstance(node, declarations.StructDecl):
