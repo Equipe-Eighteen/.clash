@@ -1,0 +1,4 @@
+// Error 1: Assignment to 'length' property (not allowed)
+var numeros: list[int] = [1, 2, 3];
+numeros.length = 10;  // CodegenError
+

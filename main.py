@@ -1,12 +1,16 @@
+import os
 import sys
 import argparse
 import pyfiglet
+import subprocess
+import tempfile
 from pprint import pprint
 from lib.utils.args_validators import clash_file
 from lib.lexer.lexer import Lexer
 from lib.parser.parser import Parser
 from lib.semantic.semantic_analyzer import SemanticAnalyzer
 from lib.codegen.codegen import CodeGenerator
+from lib.codegen.llvm_codegen import LLVMCodeGenerator
 from lib.utils.error_handler import LexerError, ParserError, CodegenError
 
 def main() -> None:
@@ -40,16 +44,11 @@ def main() -> None:
         action='store_true',
         help="run only the semantic analyzer and print any errors to the console"
     )
-    args_parser.add_argument(
-        '-c', '--codegen',
-        action='store_true',
-        help="generate the code from the AST and print it"
-    )
-    args_parser.add_argument(
-        '-r', '--run',
-        action='store_true',
-        help="generate the code and execute it"
-    )
+    # args_parser.add_argument(
+    #     '-c', '--compiler',
+    #     action='store_true',
+    #     help="generate the LLVM IR code and execute it"
+    # )
 
     args = args_parser.parse_args()
     with open(args.filename, "r", encoding="utf-8") as f:
@@ -91,25 +90,56 @@ def main() -> None:
     if args.semantic and not semantic_errors:
         print("No semantic errors found.")
         return
-
-    # Codegen/Run
+    
     gen = CodeGenerator()
-    if args.codegen:
-        try:
-            src = gen.generate(ast, args.run)
-        except CodegenError as e:
-            print(e, file=sys.stderr)
-            sys.exit(1)
-        pprint(src)
-        return
+    try:
+        gen.run(ast)
+    except CodegenError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
 
-    if args.run or not any((args.lexer, args.parser, args.semantic, args.codegen, args.run)):
+    if False:  # args.compiler:
+        llvm_gen = LLVMCodeGenerator()
         try:
-            gen.run(ast)
+            src = llvm_gen.generate(ast)
         except CodegenError as e:
             print(e, file=sys.stderr)
             sys.exit(1)
-        return
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.ll', delete=False) as ll_file:
+            ll_file.write(src)
+            ll_filename = ll_file.name
+        
+        exe_filename = None
+        try:
+            exe_filename = ll_filename.replace('.ll', '.exe')
+            
+            compile_result = subprocess.run(
+                ['clang', ll_filename, '-o', exe_filename, '-lm'],
+                capture_output=True,
+                text=True
+            )
+            
+            if compile_result.returncode != 0:
+                print(f"Compilation error:\n{compile_result.stderr}", file=sys.stderr)
+                sys.exit(1)
+            
+            exec_result = subprocess.run(
+                [exe_filename],
+                capture_output=True,
+                text=True
+            )
+            
+            print(exec_result.stdout, end='')
+            if exec_result.stderr:
+                print(exec_result.stderr, file=sys.stderr, end='')
+            
+            sys.exit(exec_result.returncode)
+        finally:
+            if os.path.exists(ll_filename):
+                os.remove(ll_filename)
+            if exe_filename is not None and os.path.exists(exe_filename):
+                os.remove(exe_filename)
 
 if __name__ == "__main__":
     main()

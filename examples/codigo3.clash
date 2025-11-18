@@ -1,0 +1,29 @@
+// Arquivo para testar a geração de código LLVM inicial.
+
+// Variáveis globais
+var g_int: int = 42;
+var g_float: float = 3.14;
+var g_bool: bool = true;
+var g_str: str = "Hello from Clash!";
+var g_uninitialized: int;
+
+// Declarações de Funções
+func my_func(a: int, b: float): void {
+    // O corpo ainda não é gerado, mas a assinatura sim.
+    print("This is my_func => " + a + ", " + b);
+}
+
+func another_func(a: int): int {
+    // O corpo deve conter apenas um 'ret i32 0' (ou undef).
+    return a;
+}
+
+print(another_func(2));
+
+print(g_int);
+print(g_float);
+print(g_bool);
+print(g_str);
+print(g_uninitialized);
+
+my_func(10, 2.71);

@@ -25,12 +25,6 @@ class SemanticError(Exception):
 
 
 class CodegenError(Exception):
-    def __init__(self, message: str, node: Optional[Any] = None) -> None:
-        node_val = None
-        if node is not None:
-            for attr in ("name", "value"):
-                node_val = getattr(node, attr, None)
-                if node_val is not None:
-                    break
-        node_repr = f" -> '{node_val}'" if node_val is not None else ""
-        super().__init__(f"Codegen error: {message}{node_repr}")
+    def __init__(self, message: str, line: int, column: int) -> None:
+        location = f" at line {line}, column {column}" if line > 0 and column > 0 else ""
+        super().__init__(f"Codegen error{location}: {message}")

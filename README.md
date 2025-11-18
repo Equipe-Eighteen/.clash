@@ -124,6 +124,10 @@ Observações:
 
 Exemplo com nome do binário:
 ```sh
+pyinstaller --onefile --name clash --add-data="./.venv/Lib/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
+```
+ou
+```sh
 pyinstaller --onefile --name clash --add-data="./.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
 ```
 
@@ -132,10 +136,27 @@ Após o build:
 ./dist/clash examples/codigo.clash
 ```
 
-## 🛠 Instalação no Linux (via curl)
+## 🛠 Instalação
 
-Instale o Clash em uma máquina Linux usando um script `install.sh` hospedado no GitHub:
+### Linux
+
+Instale o Clash em uma máquina Linux usando curl:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/Equipe-Eighteen/.clash/refs/heads/main/install.sh | bash
+```
+
+### Windows
+
+Instale o Clash no Windows usando PowerShell (execute como administrador):
+
+```powershell
+irm https://raw.githubusercontent.com/Equipe-Eighteen/.clash/refs/heads/main/install.ps1 | iex
+```
+
+Ou baixe e execute manualmente:
+
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Equipe-Eighteen/.clash/refs/heads/main/install.ps1" -OutFile "install.ps1"
+.\install.ps1
 ```

@@ -3,7 +3,7 @@ set -e
 
 APP_NAME="clash"
 GITHUB_REPO="Equipe-Eighteen/.clash"
-RELEASE_TAG="v1.0.0"
+RELEASE_TAG="linux-1.0.0"
 
 INSTALL_DIR="$HOME/.local/bin"
 INSTALL_PATH="$INSTALL_DIR/$APP_NAME"
