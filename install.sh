@@ -15,7 +15,7 @@ BIN_NAME=""
 echo "Detected architecture: $ARCH"
 
 if [ "$ARCH" = "x86_64" ]; then
-    BIN_NAME="clash" 
+    BIN_NAME="clash.bin" # BIN_NAME="clash" for PyInstaller build 
 else
     echo "Error: This script only supports Linux x86_64 (amd64)."
     echo "Found architecture: $ARCH"

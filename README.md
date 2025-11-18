@@ -112,29 +112,54 @@ python main.py examples/codigo.clash
 
 ## 📦 Build (Binário)
 
-Gere um executável standalone com PyInstaller. Este projeto usa `pyfiglet`, então inclua os arquivos de fontes:
+Gere um executável standalone com PyInstaller ou Nuitka. Este projeto usa `pyfiglet`, então inclua os arquivos de fontes:
 
-```sh
-pyinstaller --onefile --add-data="/dir/to/repo/clash/.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
-```
+### 🔨 Exemplos de Build
+
+#### PyInstaller
 
 Observações:
 - O caminho de `pyfiglet/fonts` pode variar conforme seu Python/venv. Ajuste se necessário.
 - O executável será criado em `dist/main` (ou renomeie com `--name clash`).
 
-Exemplo com nome do binário:
-```sh
-pyinstaller --onefile --name clash --add-data="./.venv/Lib/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
-```
-ou
-```sh
-pyinstaller --onefile --name clash --add-data="./.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
-```
+- **Windows:**
+  ```sh
+  pyinstaller --onefile --name clash --add-data="./.venv/Lib/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
+  ```
+
+- **Linux:**
+  ```sh
+  pyinstaller --onefile --name clash --add-data="./.venv/lib/python3.12/site-packages/pyfiglet/fonts:pyfiglet/fonts" main.py
+  ```
 
 Após o build:
 ```sh
 ./dist/clash examples/codigo.clash
 ```
+
+#### Nuitka
+
+Observações:
+- O executável será criado em na raiz do projeto.
+
+- **Windows (Compilador de C do Visual Studio MSVC):**
+  ```sh
+  nuitka --onefile --msvc=latest main.py
+  ```
+  Após o build:
+  ```sh
+  ./main.exe examples/codigo.clash
+  ```
+
+- **Linux:**
+  ```sh
+  nuitka --onefile main.py
+  ```
+  Após o build:
+  ```sh
+  ./main.bin examples/codigo.clash
+  ```
+
 
 ## 🛠 Instalação
 

@@ -1,7 +1,12 @@
 **/__pycache__/
 **/.*_cache/
 build/
+*.build/
+*.onefile-build/
 dist/
-.venv
+*.dist/
+.venv*/
 .vscode
 *.spec
+*.bin
+*.exe
