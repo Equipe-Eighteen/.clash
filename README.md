@@ -185,3 +185,7 @@ Ou baixe e execute manualmente:
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Equipe-Eighteen/.clash/refs/heads/main/install.ps1" -OutFile "install.ps1"
 .\install.ps1
 ```
+
+## 📁 Exemplos
+
+Você pode explorar a pasta `examples/` para encontrar exemplos de códigos escritos em Clash, além de exemplos de erros comuns em arquivos `.clash`. Esses exemplos são úteis para entender a sintaxe da linguagem e identificar possíveis problemas durante o desenvolvimento.
