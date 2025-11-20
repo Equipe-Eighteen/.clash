@@ -1,0 +1,3 @@
+func int main() { // typing error: 'func int' should be 'func main(): int'
+    return 10;
+}

@@ -1,0 +1,7 @@
+func main(): int {
+    var a: int = 10;
+    if (a > 5) {
+        return a
+    } // Missing semicolon
+    return 0;
+}
